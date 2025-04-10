@@ -1,0 +1,91 @@
+---
+interface Props {
+  question: string;
+  answer: string;
+}
+
+const { question, answer } = Astro.props;
+---
+
+<div class="flashcard">
+  <div class="flashcard-inner">
+    <div class="flashcard-front">
+      <p>{question}</p>
+    </div>
+    <div class="flashcard-back">
+      <p>{answer}</p>
+    </div>
+  </div>
+</div>
+
+<style>
+  .flashcard {
+    width: 300px;
+    height: 200px;
+    perspective: 1000px;
+    margin: 1rem auto;
+    cursor: pointer;
+  }
+
+  .flashcard-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    transition: transform 0.6s;
+    transform-style: preserve-3d;
+  }
+
+  .flashcard:hover .flashcard-inner {
+    transform: rotateY(180deg);
+  }
+
+  .flashcard-front, .flashcard-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  .flashcard-front {
+    background-color: #f9fafb;
+    color: #111827;
+  }
+
+  .flashcard-back {
+    background-color: #e5e7eb;
+    color: #1f2937;
+    transform: rotateY(180deg);
+  }
+
+  p {
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+  }
+</style>
+
+<script>
+  // If you want to use click instead of hover
+  document.addEventListener('DOMContentLoaded', () => {
+    const flashcards = document.querySelectorAll('.flashcard');
+    
+    flashcards.forEach(card => {
+      card.addEventListener('click', () => {
+        const inner = card.querySelector('.flashcard-inner');
+        if (inner) {
+          const htmlInner = inner as HTMLElement;
+          htmlInner.style.transform = htmlInner.style.transform === 'rotateY(180deg)' 
+            ? 'rotateY(0deg)' 
+            : 'rotateY(180deg)';
+        }
+      });
+    });
+  });
+</script> 

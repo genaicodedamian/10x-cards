@@ -1,8 +1,13 @@
 ---
 description: 
-globs: *.tsx,*.astro
+globs:  **/*.jsx, **/*.astro,**/*.tsx
 alwaysApply: false
 ---
+---
+Rule Type: Auto Attached
+globs: '**/*.tsx, **/*.jsx, **/*.astro'
+---
+
 ## Frontend
 
 ### General Guidelines
@@ -20,7 +25,7 @@ alwaysApply: false
 - Leverage the theme() function in CSS for accessing Tailwind theme values
 - Implement dark mode with the dark: variant
 - Use responsive variants (sm:, md:, lg:, etc.) for adaptive designs
-- Leverage state variants (hover:, focus-visible:, active:, etc.) for interactive elements
+- Leverage state variants (hover:, focus:, active:, etc.) for interactive elements
 
 ### Guidelines for Accessibility
 

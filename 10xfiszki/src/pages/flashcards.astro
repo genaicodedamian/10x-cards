@@ -1,0 +1,37 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Flashcard from '../components/Flashcard.astro';
+---
+
+<Layout title="Flashcards">
+  <main class="container mx-auto py-8">
+    <h1 class="text-3xl font-bold text-center mb-8">Flashcards</h1>
+    
+    <div class="max-w-4xl mx-auto">
+      <Flashcard 
+        question="What is JSX?" 
+        answer="JSX stands for JavaScript XML. It is a syntax extension for JavaScript, recommended by React to describe what the UI should look like."
+      />
+      
+      <Flashcard 
+        question="What are React Hooks?" 
+        answer="Hooks are functions that let you 'hook into' React state and lifecycle features from function components. They were introduced in React 16.8 and include useState, useEffect, useContext, etc."
+      />
+      
+      <Flashcard 
+        question="What is the Virtual DOM in React?" 
+        answer="The Virtual DOM is a programming concept where a virtual representation of a UI is kept in memory and synced with the 'real' DOM. This allows React to do computationally efficient diff operations before updating the browser DOM."
+      />
+    </div>
+  </main>
+</Layout>
+
+<style>
+  main {
+    padding: 2rem;
+  }
+  
+  h1 {
+    margin-bottom: 2rem;
+  }
+</style> 

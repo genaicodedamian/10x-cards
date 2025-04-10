@@ -3,9 +3,13 @@ description:
 globs: 
 alwaysApply: true
 ---
-# AI Rules for {app-name}
+---
+Rule Type: Always
+---
 
-{project-description}
+# AI Rules for {{project-name}}
+
+{{project-description}}
 
 ## Tech Stack
 
@@ -13,7 +17,6 @@ alwaysApply: true
 - TypeScript 5
 - React 19
 - Tailwind 4
-- Shadcn/ui
 
 ## Project Structure
 
@@ -23,12 +26,7 @@ When introducing changes to the project, always follow the directory structure b
 - `./src/layouts` - Astro layouts
 - `./src/pages` - Astro pages
 - `./src/pages/api` - API endpoints
-- `./src/middleware/index.ts` - Astro middleware
-- `./src/db` - Supabase clients and types
-- `./src/types.ts` - Shared types for backend and frontend (Entities, DTOs)
-- `./src/components` - Client-side components written in Astro (static) and React (dynamic)
-- `./src/components/ui` - Client-side components from Shadcn/ui
-- `./src/lib` - Services and helpers 
+- `./src/components` - client-side components written in Astro (static) and React (dynamic)
 - `./src/assets` - static internal assets
 - `./public` - public assets
 
@@ -38,8 +36,7 @@ When modifying the directory structure, always update this section.
 
 ### Guidelines for clean code
 
-- Use feedback from linters to improve the code when making changes.
-- Prioritize error handling and edge cases.
+- Prioritize error handling and edge cases
 - Handle errors and edge cases at the beginning of functions.
 - Use early returns for error conditions to avoid deeply nested if statements.
 - Place the happy path last in the function for improved readability.
@@ -47,3 +44,33 @@ When modifying the directory structure, always update this section.
 - Use guard clauses to handle preconditions and invalid states early.
 - Implement proper error logging and user-friendly error messages.
 - Consider using custom error types or error factories for consistent error handling.
+
+## CODING_PRACTICES
+
+### Guidelines for SUPPORT_LEVEL
+
+#### SUPPORT_BEGINNER
+
+- When running in agent mode, execute up to 3 actions at a time and ask for approval or course correction afterwards.
+- Write code with clear variable names and include explanatory comments for non-obvious logic. Avoid shorthand syntax and complex patterns.
+- Provide full implementations rather than partial snippets. Include import statements, required dependencies, and initialization code.
+- Add defensive coding patterns and clear error handling. Include validation for user inputs and explicit type checking.
+- Suggest simpler solutions first, then offer more optimized versions with explanations of the trade-offs.
+- Briefly explain why certain approaches are used and link to relevant documentation or learning resources.
+- When suggesting fixes for errors, explain the root cause and how the solution addresses it to build understanding. Ask for confirmation before proceeding.
+- Offer introducing basic test cases that demonstrate how the code works and common edge cases to consider.
+## CODING_PRACTICES
+
+### Guidelines for VERSION_CONTROL
+
+#### GITHUB
+
+- Use pull request templates to standardize information provided for code reviews
+- Implement branch protection rules for {{protected_branches}} to enforce quality checks
+- Configure required status checks to prevent merging code that fails tests or linting
+- Use GitHub Actions for CI/CD workflows to automate testing and deployment
+- Implement CODEOWNERS files to automatically assign reviewers based on code paths
+- Use GitHub Projects for tracking work items and connecting them to code changes
+
+
+
