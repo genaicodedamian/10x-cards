@@ -1,53 +1,104 @@
-# 10x Astro Starter
+# 10x-cards
 
-A modern, opinionated starter template for building fast, accessible, and AI-friendly web applications.
+## Table of Contents
+- [Project Description](#project-description)
+- [Tech Stack](#tech-stack)
+- [Getting Started Locally](#getting-started-locally)
+- [Available Scripts](#available-scripts)
+- [Project structure](#project-structure)
+- [Project Scope](#project-scope)
+- [Project Status](#project-status)
+- [License](#license)
+
+## Project Description
+10x-cards is an application designed to help users quickly create and manage sets of educational flashcards. It leverages Large Language Models (LLMs) via an API to generate flashcard suggestions from user-provided text, streamlining the learning process.
 
 ## Tech Stack
 
-- [Astro](https://astro.build/) v5.5.5 - Modern web framework for building fast, content-focused websites
-- [React](https://react.dev/) v19.0.0 - UI library for building interactive components
-- [TypeScript](https://www.typescriptlang.org/) v5 - Type-safe JavaScript
-- [Tailwind CSS](https://tailwindcss.com/) v4.0.17 - Utility-first CSS framework
+### Frontend
+*   **Astro 5:** For building fast, content-focused websites with minimal JavaScript.
+*   **React 19:** For creating interactive user interface components.
+*   **TypeScript 5:** For static typing, enhancing code quality and developer experience.
+*   **Tailwind CSS 4:** A utility-first CSS framework for rapid UI development.
+*   **Shadcn/ui:** A collection of re-usable, accessible UI components built with Radix UI and Tailwind CSS.
 
-## Prerequisites
+### Backend
+*   **Supabase:** An open-source Firebase alternative providing:
+    *   PostgreSQL database
+    *   Backend-as-a-Service (BaaS) SDKs
+    *   User authentication
 
-- Node.js v22.14.0 (as specified in `.nvmrc`)
-- npm (comes with Node.js)
+### AI
+*   **Openrouter.ai:** A service providing access to a wide variety of LLMs (e.g., OpenAI, Anthropic, Google) for generating flashcard content.
 
-## Getting Started
+### CI/CD & Hosting
+*   **GitHub Actions:** For automating build, test, and deployment pipelines.
+*   **DigitalOcean:** For hosting the application, likely via Docker containers.
 
-1. Clone the repository:
+## Getting Started Locally
 
-```bash
-git clone https://github.com/przeprogramowani/10x-astro-starter.git
-cd 10x-astro-starter
-```
+### Prerequisites
+*   **Node.js:** Version `22.14.0` (it's recommended to use a version manager like `nvm`).
+    *   If you use `nvm`, run `nvm use` or `nvm install $(cat .nvmrc)` in the project root.
+*   **npm** (Node Package Manager, comes with Node.js)
+*   **Supabase Account/Setup:** You'll need Supabase project credentials.
+    *   Set up a project on [Supabase](https://supabase.com/).
+    *   Obtain your Project URL and Anon Key.
+*   **Openrouter.ai API Key:**
+    *   Sign up at [Openrouter.ai](https://openrouter.ai/).
+    *   Obtain your API key.
 
-2. Install dependencies:
+### Installation & Setup
+1.  **Clone the repository:**
+    ```bash
+    git clone <repository-url>
+    cd 10x-cards 
+    ```
+    (Replace `<repository-url>` with the actual URL and `10x-cards` with the repository directory name if different, e.g. `10x-astro-starter`)
 
-```bash
-npm install
-```
+2.  **Install Node.js version:**
+    If you are using `nvm`:
+    ```bash
+    nvm use
+    ```
+    This command will use the version specified in the `.nvmrc` file. If the version is not installed, `nvm` will prompt you to install it.
 
-3. Run the development server:
+3.  **Install dependencies:**
+    ```bash
+    npm install
+    ```
 
-```bash
-npm run dev
-```
+4.  **Set up environment variables:**
+    Create a `.env` file in the root of the project by copying the `.env.example` file (if one exists, otherwise create it).
+    ```bash
+    cp .env.example .env
+    ```
+    Add your Supabase and Openrouter.ai credentials to the `.env` file:
+    ```env
+    PUBLIC_SUPABASE_URL=your_supabase_project_url
+    PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+    OPENROUTER_API_KEY=your_openrouter_api_key
+    # Add any other necessary environment variables
+    ```
+    *Note: Ensure `.env` is listed in your `.gitignore` file to prevent committing sensitive keys.*
 
-4. Build for production:
-
-```bash
-npm run build
-```
+5.  **Run the development server:**
+    ```bash
+    npm run dev
+    ```
+    The application should now be running locally, typically at `http://localhost:4321`.
 
 ## Available Scripts
 
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run preview` - Preview production build
-- `npm run lint` - Run ESLint
-- `npm run lint:fix` - Fix ESLint issues
+The `package.json` file includes the following scripts:
+
+*   `npm run dev`: Starts the Astro development server with Hot Module Replacement (HMR).
+*   `npm run build`: Builds the application for production.
+*   `npm run preview`: Serves the production build locally for previewing.
+*   `npm run astro`: Provides access to the Astro CLI for various commands.
+*   `npm run lint`: Lints the codebase using ESLint to identify and report on patterns in JavaScript, TypeScript, and Astro files.
+*   `npm run lint:fix`: Lints the codebase and automatically fixes fixable issues.
+*   `npm run format`: Formats the codebase using Prettier to ensure consistent styling.
 
 ## Project Structure
 
@@ -62,33 +113,36 @@ npm run build
 ├── public/         # Public assets
 ```
 
-## AI Development Support
+## Project Scope
 
-This project is configured with AI development tools to enhance the development experience, providing guidelines for:
+### Key Features (MVP)
+*   **AI-Powered Flashcard Generation:** Users can paste text, and the application will suggest flashcards (questions and answers) generated by an LLM.
+*   **Manual Flashcard Management:** Users can create, view, edit, and delete flashcards manually.
+*   **User Authentication:** Secure registration, login, and account management.
+*   **Spaced Repetition Integration:** Flashcards are integrated with a basic spaced repetition mechanism (using a third-party algorithm).
+*   **Data Storage:** User data and flashcards are securely stored.
+*   **Usage Statistics:** Basic tracking of AI-generated vs. accepted flashcards.
+*   **GDPR Compliance:** Adherence to data privacy regulations.
 
-- Project structure
-- Coding practices
-- Frontend development
-- Styling with Tailwind
-- Accessibility best practices
-- Astro and React guidelines
+### Out of Scope (for current MVP)
+*   Advanced, custom-built spaced repetition algorithms.
+*   Gamification features.
+*   Native mobile applications (currently web-only).
+*   Importing from multiple document formats (e.g., PDF, DOCX).
+*   Public API for third-party integrations.
+*   Flashcard sharing between users.
+*   Advanced notification system.
+*   Keyword-based search for flashcards.
 
-### Cursor IDE
-
-The project includes AI rules in `.cursor/rules/` directory that help Cursor IDE understand the project structure and provide better code suggestions.
-
-### GitHub Copilot
-
-AI instructions for GitHub Copilot are available in `.github/copilot-instructions.md`
-
-### Windsurf
-
-The `.windsurfrules` file contains AI configuration for Windsurf.
-
-## Contributing
-
-Please follow the AI guidelines and coding practices defined in the AI configuration files when contributing to this project.
+## Project Status
+The project is currently in active development, with a primary focus on delivering the Minimum Viable Product (MVP) features outlined above.
 
 ## License
+This project is currently unlicensed. Please specify a license (e.g., MIT, Apache 2.0) if this is an open-source project.
 
-MIT
+You can add a `LICENSE` file to your project root and update this section accordingly. For example, if you choose the MIT license:
+
+```
+## License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+```
