@@ -23,9 +23,9 @@ create table public.flashcards (
 comment on column public.flashcards.id is 'unique identifier for the flashcard';
 comment on column public.flashcards.set_id is 'identifier of the set to which the flashcard belongs';
 comment on column public.flashcards.user_id is 'identifier of the user who owns the flashcard (for rls simplification)';
-comment on column public.flashcards.front is 'content of the flashcard\'s front side (question)';
-comment on column public.flashcards.back is 'content of the flashcard\'s back side (answer)';
-comment on column public.flashcards.source is 'origin of the flashcard (\'manual\', \'ai_generated\', \'ai_generated_modified\')';
+comment on column public.flashcards.front is 'content of the flashcard''s front side (question)';
+comment on column public.flashcards.back is 'content of the flashcard''s back side (answer)';
+comment on column public.flashcards.source is 'origin of the flashcard (''manual'', ''ai_generated'', ''ai_generated_modified'')';
 comment on column public.flashcards.srs_interval is 'review interval (in days) for spaced repetition algorithm';
 comment on column public.flashcards.srs_repetitions is 'number of consecutive correct reviews';
 comment on column public.flashcards.srs_ease_factor is 'ease factor for the srs algorithm (e.g., 2.50)';
