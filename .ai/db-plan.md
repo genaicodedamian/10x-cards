@@ -36,10 +36,6 @@
 | `front`            | `TEXT`                       | `NOT NULL`                                                                               | Content of the flashcard's front side (question)                            |
 | `back`             | `TEXT`                       | `NOT NULL`                                                                               | Content of the flashcard's back side (answer)                               |
 | `source`           | `TEXT`                       | `NOT NULL`, `CHECK (source IN ('manual', 'ai_generated', 'ai_generated_modified'))`      | Origin of the flashcard ('manual', 'ai_generated', 'ai_generated_modified') |
-| `srs_interval`     | `INTEGER`                    | `NOT NULL`, `DEFAULT 0`                                                                  | Review interval (in days) for Spaced Repetition algorithm                   |
-| `srs_repetitions`  | `INTEGER`                    | `NOT NULL`, `DEFAULT 0`                                                                  | Number of consecutive correct reviews                                       |
-| `srs_ease_factor`  | `NUMERIC(4,2)`               | `NOT NULL`, `DEFAULT 2.5`                                                                | Ease factor for the SRS algorithm (e.g., 2.50)                              |
-| `srs_due_date`     | `TIMESTAMP WITH TIME ZONE`   | `NOT NULL`, `DEFAULT NOW()`                                                              | Date of the next scheduled review                                           |
 | `created_at`       | `TIMESTAMP WITH TIME ZONE`   | `NOT NULL`, `DEFAULT NOW()`                                                              | Timestamp of flashcard creation                                             |
 | `updated_at`       | `TIMESTAMP WITH TIME ZONE`   | `NOT NULL`, `DEFAULT NOW()`                                                              | Timestamp of last flashcard modification                                    |
 
@@ -87,7 +83,6 @@
 ### b. `flashcards` Table
 *   `idx_flashcards_set_id`: Index on `set_id`.
 *   `idx_flashcards_user_id`: Index on `user_id`.
-*   `idx_flashcards_srs_due_date`: Index on `srs_due_date`.
 *   *(Recommended)* `idx_flashcards_set_front_back_unique`: `UNIQUE` index on `(set_id, front, back)`.
 
 ### c. `generation_error_logs` Table

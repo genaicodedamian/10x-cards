@@ -11,10 +11,6 @@ create table public.flashcards (
     front text not null,
     back text not null,
     source text not null check (source in ('manual', 'ai_generated', 'ai_generated_modified')),
-    srs_interval integer not null default 0,
-    srs_repetitions integer not null default 0,
-    srs_ease_factor numeric(4,2) not null default 2.5,
-    srs_due_date timestamp with time zone not null default now(),
     created_at timestamp with time zone not null default now(),
     updated_at timestamp with time zone not null default now()
 );
@@ -23,13 +19,9 @@ create table public.flashcards (
 comment on column public.flashcards.id is 'unique identifier for the flashcard';
 comment on column public.flashcards.set_id is 'identifier of the set to which the flashcard belongs';
 comment on column public.flashcards.user_id is 'identifier of the user who owns the flashcard (for rls simplification)';
-comment on column public.flashcards.front is 'content of the flashcard''s front side (question)';
-comment on column public.flashcards.back is 'content of the flashcard''s back side (answer)';
-comment on column public.flashcards.source is 'origin of the flashcard (''manual'', ''ai_generated'', ''ai_generated_modified'')';
-comment on column public.flashcards.srs_interval is 'review interval (in days) for spaced repetition algorithm';
-comment on column public.flashcards.srs_repetitions is 'number of consecutive correct reviews';
-comment on column public.flashcards.srs_ease_factor is 'ease factor for the srs algorithm (e.g., 2.50)';
-comment on column public.flashcards.srs_due_date is 'date of the next scheduled review';
+comment on column public.flashcards.front is 'content of the flashcard\'s front side (question)';
+comment on column public.flashcards.back is 'content of the flashcard\'s back side (answer)';
+comment on column public.flashcards.source is 'origin of the flashcard (\'manual\', \'ai_generated\', \'ai_generated_modified\')';
 comment on column public.flashcards.created_at is 'timestamp of flashcard creation';
 comment on column public.flashcards.updated_at is 'timestamp of last flashcard modification';
 
@@ -97,7 +89,6 @@ execute function public.update_updated_at_column();
 -- create indexes
 create index idx_flashcards_set_id on public.flashcards(set_id);
 create index idx_flashcards_user_id on public.flashcards(user_id);
-create index idx_flashcards_srs_due_date on public.flashcards(srs_due_date);
 
 -- recommended unique index on (set_id, front, back)
 create unique index idx_flashcards_set_front_back_unique on public.flashcards(set_id, front, back); 
