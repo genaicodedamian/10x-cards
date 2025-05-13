@@ -52,27 +52,27 @@ export const POST: APIRoute = async ({ request, locals }) => {
   } catch (error: any) { // Added :any to access error.message and error.stack
     console.error('[API Route Error] Failed during flashcard generation process:', error);
 
-    let source_text_hash_on_error: string | null = null;
-    let source_text_length_on_error: number | null = null;
+    let final_source_text_hash: string = "unknown_hash_due_to_error_in_command";
+    let final_source_text_length: number = -1;
 
     if (command && command.text) {
         try {
-            source_text_hash_on_error = md5(command.text);
-            source_text_length_on_error = command.text.length;
+            final_source_text_hash = md5(command.text);
+            final_source_text_length = command.text.length;
         } catch (hashError) {
             console.error("[API Route Error] Could not compute hash/length for error log:", hashError);
+            // Defaults "unknown_hash_due_to_error_in_command" and -1 remain
         }
     }
 
     const errorLog = {
       user_id: userId,
-      model_used: 'mock-generator-v0.1-md5', // Consistent with service
-      source_text_hash: source_text_hash_on_error,
-      source_text_length: source_text_length_on_error,
+      model: 'mock-generator-v0.1-md5', // Renamed from model_used
+      source_text_hash: final_source_text_hash, // Ensured string
+      source_text_length: final_source_text_length, // Ensured number
       error_code: 'MOCK_GENERATION_SERVICE_ERROR',
-      error_message: error.message || 'An unknown error occurred in the service.',
-      error_details: error.stack || null, // Optional: include stack trace
-      // generation_request_id can be added if we introduce unique request IDs
+      error_message: String(error.message || 'An unknown error occurred in the service.'), // Ensured string
+      // error_details removed as it's not in the database schema
     };
 
     try {
