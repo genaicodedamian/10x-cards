@@ -138,7 +138,7 @@ export type SingleFlashcardResponseDto = FlashcardDto;
  * Represents an error that occurred during batch flashcard creation.
  * Part of the BatchCreateFlashcardsResponseDto.
  */
-type BatchCreateErrorDto = {
+export type BatchCreateErrorDto = {
   input_flashcard: CreateFlashcardCommand;
   error_message: string;
 };
