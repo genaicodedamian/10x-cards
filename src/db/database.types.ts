@@ -155,7 +155,37 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      delete_flashcard_atomic: {
+        Args: { p_flashcard_id: string; p_auth_user_id: string }
+        Returns: Json
+      }
+      update_flashcard_and_manage_counts: {
+        Args: {
+          p_flashcard_id: string
+          p_user_id: string
+          p_front?: string
+          p_back?: string
+          p_source?: string
+        }
+        Returns: {
+          back: string
+          created_at: string
+          front: string
+          id: string
+          set_id: string
+          source: string
+          updated_at: string
+          user_id: string
+        }[]
+      }
+      upsert_flashcards_batch_and_update_set_stats: {
+        Args: {
+          p_requesting_user_id: string
+          p_target_set_id: string
+          p_flashcards_data: Json
+        }
+        Returns: Json
+      }
     }
     Enums: {
       [_ in never]: never
