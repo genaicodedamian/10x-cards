@@ -2,8 +2,8 @@ import { z } from 'zod';
 import type { APIContext } from 'astro';
 import { DEFAULT_USER_ID } from 'src/db/supabase.client'; // TODO: Remove once auth is implemented
 import { supabaseClient } from 'src/db/supabase.client'; // TODO: Replace with context.locals.supabase once auth is integrated
-import type { FlashcardSource, PaginatedFlashcardsDto } from '../../../../../src/types';
-// import { FlashcardService } from '../../../../../src/lib/services/flashcardService'; // Will be uncommented later
+import type { PaginatedFlashcardsDto } from '../../../../../src/types'; // Adjusted path assuming src/pages/api/flashcard-sets/[setId]/flashcards.ts
+import { flashcardService, FlashcardSetNotFoundError } from '../../../../../src/lib/services/flashcardService'; // Adjusted path
 
 export const prerender = false;
 
@@ -18,6 +18,71 @@ const queryParamsSchema = z.object({
   order: z.enum(['asc', 'desc']).optional().default('asc'),
   filter_source: z.enum(['manual', 'ai_generated', 'ai_generated_modified'] as const).optional()
 });
+
+export async function GET(context: APIContext): Promise<Response> {
+  const { params: astroParams, url } = context;
+
+  // 1. Validate path parameter setId
+  const pathValidationResult = pathParamsSchema.safeParse(astroParams);
+  if (!pathValidationResult.success) {
+    return new Response(JSON.stringify({ message: "Validation failed", errors: pathValidationResult.error.flatten().fieldErrors }), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+  const { setId } = pathValidationResult.data;
+
+  // 2. Validate query parameters
+  const queryParams = Object.fromEntries(url.searchParams.entries());
+  const queryValidationResult = queryParamsSchema.safeParse(queryParams);
+
+  if (!queryValidationResult.success) {
+    return new Response(JSON.stringify({ message: "Validation failed", errors: queryValidationResult.error.flatten().fieldErrors }), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+  const validatedQueryParams = queryValidationResult.data;
+
+  try {
+    // 3. Call the service method
+    // Note: Using DEFAULT_USER_ID and imported supabaseClient as per current project setup
+    const result = await flashcardService.getFlashcardsInSet(
+      DEFAULT_USER_ID, // Per instruction, replace with actual user from context.locals.user.id later
+      setId,
+      validatedQueryParams
+      // supabaseClient // Pass if service method expects it explicitly; currently service uses imported client
+    );
+
+    // 4. Handle successful response from service
+    if (result) {
+      return new Response(JSON.stringify(result), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+    // This case should ideally not be reached if service throws errors or returns data
+    return new Response(JSON.stringify({ message: "An unexpected error occurred: Service returned no data and no error." }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
+
+  } catch (error) {
+    console.error('[API GET /flashcard-sets/{setId}/flashcards] Error:', error);
+    // 5. Handle errors from service
+    if (error instanceof FlashcardSetNotFoundError) {
+      return new Response(JSON.stringify({ message: error.message }), {
+        status: 404,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+    // Handle other generic errors (e.g., database errors thrown by the service)
+    return new Response(JSON.stringify({ message: error instanceof Error ? error.message : 'An internal server error occurred' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+}
 
 // Placeholder for GET handler
 // export async function GET(context: APIContext): Promise<Response> {

@@ -2,6 +2,9 @@ import type { SupabaseClient } from '../../db/supabase.client'; // CORRECTED IMP
 import type { BatchCreateFlashcardsCommand, BatchCreateFlashcardsResponseDto, FlashcardDto, CreateFlashcardCommand, BatchCreateErrorDto, PaginatedFlashcardsDto } from '../../types';
 import type { TablesInsert } from '../../db/database.types';
 import { z } from 'zod';
+import { supabaseClient as supabase } from '../../db/supabase.client'; // Use supabaseClient
+import { DEFAULT_USER_ID } from '../../db/supabase.client'; // Use DEFAULT_USER_ID
+// import { FlashcardSetNotFoundError, FlashcardValidationError, DatabaseError } from '@/lib/errors'; // Removed as errors.ts doesn't exist
 
 export class FlashcardSetNotFoundError extends Error {
   constructor(message: string) {
@@ -157,9 +160,41 @@ export const flashcardService = {
   //   return !!set;
   // }
 
-  async getFlashcardById(userId: string, flashcardId: string): Promise<FlashcardDto | null> {
-    // ... existing code ...
-    return null; // Added to satisfy linter
+  /**
+   * Retrieves a single flashcard by its ID and user ID.
+   * @param supabase - The Supabase client instance.
+   * @param flashcardId - The UUID of the flashcard to retrieve.
+   * @param userId - The UUID of the user who owns the flashcard.
+   * @returns A Promise that resolves to the FlashcardDto if found, or null otherwise.
+   * @throws Will throw an error if the database query fails for reasons other than not finding the flashcard.
+   */
+  async getFlashcardById(
+    supabase: SupabaseClient,
+    flashcardId: string,
+    userId: string
+  ): Promise<FlashcardDto | null> {
+    console.log(`FlashcardService: Fetching flashcard with id: ${flashcardId} for user: ${userId}`);
+    const { data, error } = await supabase
+      .from('flashcards')
+      .select('*')
+      .eq('id', flashcardId)
+      .eq('user_id', userId)
+      .single();
+
+    if (error) {
+      if (error.code === 'PGRST116') { 
+        console.log(`FlashcardService: Flashcard not found (id: ${flashcardId}, userId: ${userId})`);
+        return null; 
+      }
+      console.error(`FlashcardService: Error fetching flashcard (id: ${flashcardId}, userId: ${userId}):`, error);
+      // Throw a generic Error as DatabaseError is not available
+      throw new Error('Failed to fetch flashcard due to a database error.'); 
+    }
+
+    if (data) {
+      console.log(`FlashcardService: Flashcard found (id: ${flashcardId}, userId: ${userId})`, data);
+    }
+    return data as FlashcardDto | null; 
   },
 
   async updateFlashcard(
@@ -176,16 +211,73 @@ export const flashcardService = {
 
   // New method for listing flashcards in a set
   async getFlashcardsInSet(
-    userId: string,
+    userId: string, // Will be DEFAULT_USER_ID for now
     setId: string,
-    params: ValidatedFlashcardListParams
+    params: ValidatedFlashcardListParams,
+    // supabase: SupabaseClient // Pass as argument if refactoring to class or dependency injection
   ): Promise<PaginatedFlashcardsDto | null> {
-    console.log('FlashcardService.getFlashcardsInSet called with:', { userId, setId, params });
-    // TODO: Implement actual logic
+    console.log('FlashcardService.getFlashcardsInSet called with:', { userId: DEFAULT_USER_ID, setId, params });
+
     // 1. Verify set ownership (setId belongs to userId)
-    // 2. Fetch flashcards with pagination, sorting, filtering
-    // 3. Fetch total count for pagination
+    const { data: set, error: setError } = await supabase
+      .from('flashcard_sets')
+      .select('id')
+      .eq('id', setId)
+      .eq('user_id', DEFAULT_USER_ID) // Using DEFAULT_USER_ID as per instructions
+      .maybeSingle();
+
+    if (setError) {
+      console.error(`Database error while verifying flashcard set ${setId} for user ${DEFAULT_USER_ID}:`, setError);
+      // Consider throwing a more generic database error or logging more details
+      throw new Error(`Database error while verifying flashcard set: ${setError.message}`);
+    }
+
+    if (!set) {
+      throw new FlashcardSetNotFoundError(`Flashcard set with ID ${setId} not found or user ${DEFAULT_USER_ID} does not have access.`);
+    }
+
+    // 2. Fetch flashcards with pagination, sorting, filtering & 3. Fetch total count
+    const { page, limit, sort_by, order, filter_source } = params;
+    const rangeFrom = (page - 1) * limit;
+    const rangeTo = page * limit - 1;
+
+    let query = supabase
+      .from('flashcards')
+      .select('*', { count: 'exact' })
+      .eq('set_id', setId)
+      .eq('user_id', DEFAULT_USER_ID); // Important for RLS and explicit check
+
+    if (filter_source) {
+      query = query.eq('source', filter_source);
+    }
+
+    query = query
+      .order(sort_by, { ascending: order === 'asc' })
+      .range(rangeFrom, rangeTo);
+
+    const { data: flashcards, error: flashcardsError, count } = await query;
+
+    if (flashcardsError) {
+      console.error(`Database error while fetching flashcards for set ${setId}:`, flashcardsError);
+      throw new Error(`Database error while fetching flashcards: ${flashcardsError.message}`);
+    }
+
     // 4. Construct and return PaginatedFlashcardsDto
-    return null; // Placeholder
+    const totalItems = count || 0;
+    const totalPages = Math.ceil(totalItems / limit);
+
+    const paginationInfo = {
+      current_page: page,
+      total_pages: totalPages,
+      total_items: totalItems,
+      limit: limit,
+    };
+
+    console.log('Returning PaginatedFlashcardsDto', { data: flashcards || [], pagination: paginationInfo });
+
+    return {
+      data: flashcards || [], // Ensure data is always an array
+      pagination: paginationInfo,
+    };
   }
 }; 

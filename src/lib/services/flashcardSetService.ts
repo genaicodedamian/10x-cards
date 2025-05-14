@@ -1,4 +1,8 @@
-import type { SupabaseClient, PostgrestError } from '@supabase/supabase-js';
+import type { Database, Tables } from '@/db/database.types';
+// Use SupabaseClient from the local wrapper
+import type { SupabaseClient } from '@/db/supabase.client'; 
+// Keep PostgrestError if it's used and not re-exported by the local SupabaseClient module
+import type { PostgrestError } from '@supabase/supabase-js';
 import type { CreateFlashcardSetCommand, FlashcardSetDto, PaginationInfoDto } from '../../types'; // Adjusted path
 
 /**
