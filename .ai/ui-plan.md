@@ -90,7 +90,7 @@ Interfejs będzie responsywny, wykorzystując Tailwind CSS i predefiniowane komp
     *   Nagłówek H1: "Generate Flashcards".
     *   `Textarea` (Shadcn/ui): Pole na tekst źródłowy (min. 1000, max. 10000 znaków).
     *   `Label` lub `span` (Shadcn/ui): Wyświetlanie licznika znaków (`aktualne/maksymalne`) i komunikatów walidacji długości tekstu.
-    *   `Button` (Shadcn/ui): "Generate Flashcards" (dezaktywowany, jeśli tekst nie spełnia kryteriów długości).
+    *   `Button` (Shadcn/ui): "Generate Flashcards" (dezaktywowany, jeśli tekst nie spełnia kryteriów długości), po kliknięciu w button "Generate Flashcards" następuje wygenerowanie fiszek z uzyciem metody `POST /api/ai/generate-flashcards` .
     *   Siatka (CSS Grid/Flexbox): Wyświetlanie wygenerowanych sugestii fiszek (do 3 kolumn).
     *   Komponent `FlashcardDisplay` (reużywalny, oparty na `Card` z Shadcn/ui) dla każdej sugestii, wyświetlający:
         *   Przód fiszki.
