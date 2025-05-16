@@ -463,7 +463,7 @@ Supabase Auth handles user registration, login, password reset, etc. The API wil
 
 #### `POST /api/flashcards/{flashcardId}/regenerate`
 
--   **Description**: Regenerates a specific AI-generated flashcard using LLM.
+-   **Description**: **OUT OF SCOPE FOR MVP. This endpoint is planned for a future iteration.** Regenerates a specific AI-generated flashcard using LLM.
 -   **HTTP Method**: `POST`
 -   **Authentication**: Required
 -   **Request Payload**: None (The request body should be empty or an empty JSON object `{}`).

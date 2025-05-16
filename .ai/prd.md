@@ -46,81 +46,110 @@ Manualne tworzenie wysokiej jakości fiszek wymaga dużych nakładów czasu i wy
    - Współdzielenie fiszek między użytkownikami.
    - Rozbudowany system powiadomień.
    - Zaawansowane wyszukiwanie fiszek po słowach kluczowych.
+   - Zaawansowana regeneracja pojedynczych fiszek z wykorzystaniem AI (poza ich standardową edycją manualną)(ale to będzie dopiero w dalszym wdrozeniu aplikacji, nie zajmujemy sie tym w obecnym scope projektu)
 
 ## 5. Historyjki użytkowników
+
+ID: US-000
+Tytuł: Ekran Startowy dla niezalogowanego użytkownika
+Opis: Jako niezalogowany użytkownik odwiedzający aplikację po raz pierwszy (lub po wylogowaniu) chcę zobaczyć prosty ekran startowy z nazwą aplikacji i jasnymi opcjami przejścia do logowania lub rejestracji.
+Kryteria akceptacji:
+- Główna strona aplikacji (`/`) dla niezalogowanych użytkowników to Ekran Startowy.
+- Na Ekranie Startowym widoczna jest nazwa aplikacji (np. "10x-cards") w czytelny sposób.
+- Na Ekranie Startowym znajdują się dwa wyraźne przyciski: "Zaloguj się" (prowadzący do `/login`) oraz "Zarejestruj się" (prowadzący do `/register`).
+- Ekran jest minimalistyczny i skupia się na tych dwóch akcjach.
 
 ID: US-001
 Tytuł: Rejestracja konta
 Opis: Jako nowy użytkownik chcę się zarejestrować, aby mieć dostęp do własnych fiszek i móc korzystać z generowania fiszek przez AI.
 Kryteria akceptacji:
-- Formularz rejestracyjny zawiera pola na adres e-mail i hasło.
+- Formularz rejestracyjny na stronie `/register` zawiera pola na adres e-mail, hasło i potwierdzenie hasła.
 - Po poprawnym wypełnieniu formularza i weryfikacji danych konto jest aktywowane.
-- Użytkownik otrzymuje potwierdzenie pomyślnej rejestracji i zostaje zalogowany.
+- Użytkownik otrzymuje potwierdzenie pomyślnej rejestracji (np. komunikat toast na następnym ekranie) i zostaje automatycznie zalogowany oraz przekierowany na `/dashboard`.
 
 ID: US-002
 Tytuł: Logowanie do aplikacji
 Opis: Jako zarejestrowany użytkownik chcę móc się zalogować, aby mieć dostęp do moich fiszek i historii generowania.
 Kryteria akceptacji:
-- Po podaniu prawidłowych danych logowania użytkownik zostaje przekierowany do widoku generowania fiszek.
-- Błędne dane logowania wyświetlają komunikat o nieprawidłowych danych.
+- Formularz logowania na stronie `/login` zawiera pola na adres e-mail i hasło.
+- Po podaniu prawidłowych danych logowania użytkownik zostaje przekierowany na `/dashboard`.
+- Błędne dane logowania wyświetlają komunikat o nieprawidłowych danych na stronie logowania.
 - Dane dotyczące logowania przechowywane są w bezpieczny sposób.
+
+ID: US-002a
+Tytuł: Dostęp do Głównego Panelu Nawigacyjnego (Dashboard)
+Opis: Jako zalogowany użytkownik, po pomyślnym zalogowaniu lub rejestracji, chcę zostać przekierowany na główny panel nawigacyjny (Dashboard), który umożliwi mi łatwy dostęp do kluczowych funkcji aplikacji.
+Kryteria akceptacji:
+- Po zalogowaniu lub rejestracji użytkownik jest automatycznie przekierowywany na ekran Dashboard (`/dashboard`).
+- Ekran Dashboard jest głównym punktem startowym dla zalogowanego użytkownika.
+- Na Dashboardzie znajdują się co najmniej trzy wyraźne opcje nawigacyjne (np. przyciski lub klikalne karty):
+    - "Generuj fiszki z AI" (prowadzący do ekranu `/generate-ai`).
+    - "Stwórz fiszki manualnie" (prowadzący do ekranu `/create-manual`).
+    - "Moje zestawy fiszek" (prowadzący do ekranu `/my-flashcards`).
+- Dashboard jest przejrzysty i umożliwia szybkie rozpoczęcie pracy z aplikacją.
 
 ID: US-003
 Tytuł: Generowanie fiszek przy użyciu AI
-Opis: Jako zalogowany użytkownik chcę wkleić kawałek tekstu i za pomocą przycisku wygenerować propozycje fiszek, aby zaoszczędzić czas na ręcznym tworzeniu pytań i odpowiedzi.
+Opis: Jako zalogowany użytkownik chcę przejść z Dashboardu do ekranu generowania fiszek AI, wkleić kawałek tekstu i za pomocą przycisku wygenerować propozycje fiszek, aby zaoszczędzić czas na ręcznym tworzeniu pytań i odpowiedzi.
 Kryteria akceptacji:
-- W widoku generowania fiszek znajduje się pole tekstowe, w którym użytkownik może wkleić swój tekst.
-- Pole tekstowe oczekuje od 1000 do 10 000 znaków.
-- Po kliknięciu przycisku generowania aplikacja komunikuje się z API modelu LLM i wyświetla listę wygenerowanych propozycji fiszek do akceptacji przez użytkownika.
+- Na ekranie `/generate-ai` znajduje się pole tekstowe, w którym użytkownik może wkleić swój tekst (wymagana długość 1000-10000 znaków, z walidacją i licznikiem).
+- Po kliknięciu przycisku "Generate Flashcards" aplikacja komunikuje się z API modelu LLM.
+- Wyświetlana jest lista wygenerowanych propozycji fiszek (przód i tył) z opcjami ich akceptacji, edycji (w modalu) lub odrzucenia.
+- Użytkownik może zapisać zaakceptowane lub wszystkie fiszki jako *nowy zestaw*, nadając mu nazwę w osobnym modalu.
 - W przypadku problemów z API lub braku odpowiedzi modelu użytkownik zobaczy stosowny komunikat o błędzie.
 
 ID: US-004
-Tytuł: Przegląd i zatwierdzanie propozycji fiszek
-Opis: Jako zalogowany użytkownik chcę móc przeglądać wygenerowane fiszki i decydować, które z nich chcę dodać do mojego zestawu, aby zachować tylko przydatne pytania i odpowiedzi.
+Tytuł: Przegląd i zatwierdzanie propozycji fiszek (w procesie generowania AI)
+Opis: Jako zalogowany użytkownik na ekranie generowania AI chcę móc przeglądać wygenerowane fiszki i decydować, które z nich chcę dodać do mojego nowego zestawu, aby zachować tylko przydatne pytania i odpowiedzi.
 Kryteria akceptacji:
-- Lista wygenerowanych fiszek jest wyświetlana pod formularzem generowania.
-- Przy każdej fiszce znajduje się przycisk pozwalający na jej zatwierdzenie, edycję lub odrzucenie.
-- Po zatwierdzeniu wybranych fiszek użytkownik może kliknąć przycisk zapisu i dodać je do bazy danych.
+- Lista wygenerowanych fiszek jest wyświetlana na ekranie `/generate-ai`.
+- Przy każdej fiszce znajdują się ikony pozwalające na jej zatwierdzenie (zaakceptowanie), edycję (w modalu) lub odrzucenie (usunięcie z listy propozycji).
+- Po wybraniu fiszek i kliknięciu przycisku zapisu (np. "Save accepted" lub "Save all"), użytkownik jest proszony o nadanie nazwy nowemu zestawowi w modalu, a następnie fiszki są zapisywane w bazie danych jako nowy zestaw.
 
 ID: US-005
-Tytuł: Edycja fiszek utworzonych ręcznie i generowanych przez AI
-Opis: Jako zalogowany użytkownik chcę edytować stworzone lub wygenerowane fiszki, aby poprawić ewentualne błędy lub dostosować pytania i odpowiedzi do własnych potrzeb.
+Tytuł: Edycja fiszek przed zapisaniem zestawu
+Opis: Jako zalogowany użytkownik chcę edytować proponowane przez AI fiszki (na ekranie `/generate-ai`) lub ręcznie dodawane fiszki (na ekranie `/create-manual`) *przed* ich finalnym zapisaniem jako nowy zestaw, aby poprawić ewentualne błędy lub dostosować treść.
 Kryteria akceptacji:
-- Istnieje lista zapisanych fiszek (zarówno ręcznie tworzonych, jak i zatwierdzonych wygenerowanych).
-- Każdą fiszkę można kliknąć i wejść w tryb edycji.
-- Zmiany są zapisywane w bazie danych po zatwierdzeniu.
+- Na ekranie `/generate-ai`, przy każdej sugerowanej fiszce istnieje opcja "Edytuj", która otwiera modal umożliwiający zmianę przodu i tyłu fiszki.
+- Na ekranie `/create-manual`, po dodaniu fiszki do tymczasowej listy, istnieje opcja "Edytuj", która otwiera modal umożliwiający zmianę przodu i tyłu tej fiszki.
+- Zmiany są odzwierciedlane w propozycji/tymczasowej liście i uwzględniane przy zapisywaniu nowego zestawu.
+- (Uwaga: Edycja fiszek w już istniejących, zapisanych zestawach nie jest objęta zakresem MVP UI).
 
 ID: US-006
-Tytuł: Usuwanie fiszek
-Opis: Jako zalogowany użytkownik chcę usuwać zbędne fiszki, aby zachować porządek w moim zestawie.
+Tytuł: Odrzucanie/Usuwanie fiszek przed zapisaniem zestawu
+Opis: Jako zalogowany użytkownik chcę odrzucać niechciane sugestie AI (na ekranie `/generate-ai`) lub usuwać błędnie dodane fiszki (na ekranie `/create-manual`) *przed* ich finalnym zapisaniem jako nowy zestaw.
 Kryteria akceptacji:
-- Przy każdej fiszce na liście (w widoku "Moje fiszki") widoczna jest opcja usunięcia.
-- Po wybraniu usuwania użytkownik musi potwierdzić operację, zanim fiszka zostanie trwale usunięta.
-- Fiszki zostają trwale usunięte z bazy danych po potwierdzeniu.
+- Na ekranie `/generate-ai`, przy każdej sugerowanej fiszce istnieje opcja "Odrzuć", która usuwa ją z listy propozycji.
+- Na ekranie `/create-manual`, przy każdej fiszce na tymczasowej liście istnieje opcja "Usuń", która usuwa ją z tej listy.
+- Te fiszki nie są uwzględniane przy zapisywaniu nowego zestawu.
+- (Uwaga: Usuwanie pojedynczych fiszek z już istniejących, zapisanych zestawów nie jest objęte zakresem MVP UI. Możliwe jest usuwanie całych zestawów).
 
 ID: US-007
-Tytuł: Ręczne tworzenie fiszek
-Opis: Jako zalogowany użytkownik chcę ręcznie stworzyć fiszkę (określając przód i tył fiszki), aby dodawać własny materiał, który nie pochodzi z automatycznie generowanych treści.
+Tytuł: Ręczne tworzenie nowego zestawu fiszek
+Opis: Jako zalogowany użytkownik chcę przejść z Dashboardu do dedykowanego ekranu ręcznego tworzenia fiszek, aby móc dodawać własne fiszki (określając przód i tył) i zapisać je jako nowy zestaw.
 Kryteria akceptacji:
-- W widoku "Moje fiszki" znajduje się przycisk dodania nowej fiszki.
-- Naciśnięcie przycisku otwiera formularz z polami "Przód" i "Tył".
-- Po zapisaniu nowa fiszka pojawia się na liście.
+- Z Dashboardu dostępny jest ekran `/create-manual`.
+- Na ekranie `/create-manual` znajduje się przycisk "+ Stwórz nową fiszkę", który otwiera modal/formularz z polami "Przód" i "Tył".
+- Po zapisaniu danych w modalu/formularzu, nowa fiszka pojawia się na tymczasowej liście na tym ekranie, z opcjami edycji i usunięcia.
+- Użytkownik może dodać wiele fiszek do tymczasowej listy.
+- Po przygotowaniu fiszek, użytkownik klika przycisk "Zapisz zestaw fiszek", wprowadza nazwę dla nowego zestawu w modalu, a fiszki są zapisywane w bazie danych.
 
 ID: US-008
 Tytuł: Sesja nauki z algorytmem powtórek
-Opis: Jako zalogowany użytkownik chcę, aby dodane fiszki były dostępne w widoku "Sesja nauki" opartym na zewnętrznym algorytmie, aby móc efektywnie się uczyć (spaced repetition).
+Opis: Jako zalogowany użytkownik chcę móc wybrać jeden z moich zapisanych zestawów fiszek i rozpocząć sesję nauki opartą na prostym algorytmie powtórek, aby efektywnie przyswajać materiał.
 Kryteria akceptacji:
-- W widoku "Sesja nauki" algorytm przygotowuje dla mnie sesję nauki fiszek
-- Na start wyświetlany jest przód fiszki, poprzez interakcję użytkownik wyświetla jej tył
-- Użytkownik ocenia zgodnie z oczekiwaniami algorytmu na ile przyswoił fiszkę
-- Następnie algorytm pokazuje kolejną fiszkę w ramach sesji nauki
+- Z ekranu `/my-flashcards` (Moje zestawy fiszek) mogę wybrać zestaw i kliknąć "Rozpocznij naukę", co przenosi mnie na ekran `/study-session/:setId`.
+- Na ekranie sesji nauki wyświetlany jest przód fiszki. Po kliknięciu użytkownik widzi tył oraz przyciski "Umiem" (zielony) i "Nie umiem" (czerwony).
+- Fiszki oznaczone jako "Nie umiem" są powtarzane w tej samej sesji, aż wszystkie zostaną oznaczone jako "Umiem".
+- Po zakończeniu sesji (wszystkie fiszki "Umiem"), wyświetlany jest komunikat o ukończeniu i przycisk powrotu do Dashboardu.
+- Użytkownik nie może opuścić sesji nauki przed jej ukończeniem.
 
 ID: US-009
 Tytuł: Bezpieczny dostęp i autoryzacja
-Opis: Jako zalogowany użytkownik chcę mieć pewność, że moje fiszki nie są dostępne dla innych użytkowników, aby zachować prywatność i bezpieczeństwo danych.
+Opis: Jako zalogowany użytkownik chcę mieć pewność, że moje zestawy fiszek i fiszki nie są dostępne dla innych użytkowników, aby zachować prywatność i bezpieczeństwo danych.
 Kryteria akceptacji:
-- Tylko zalogowany użytkownik może wyświetlać, edytować i usuwać swoje fiszki.
-- Nie ma dostępu do fiszek innych użytkowników ani możliwości współdzielenia.
+- Tylko zalogowany użytkownik może wyświetlać, tworzyć i usuwać swoje zestawy fiszek oraz przeprowadzać na nich sesje nauki.
+- Mechanizmy autoryzacji (np. RLS w bazie danych) zapewniają, że użytkownik ma dostęp wyłącznie do swoich danych.
 
 ## 6. Metryki sukcesu
 1. Efektywność generowania fiszek:

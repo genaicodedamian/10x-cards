@@ -1,5 +1,6 @@
 ---
 import "../styles/global.css";
+import { Toaster } from 'sonner';
 
 interface Props {
   title?: string;
@@ -17,8 +18,9 @@ const { title = "10x Astro Starter" } = Astro.props;
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
   </head>
-  <body>
+  <body class="min-h-screen bg-background font-sans antialiased">
     <slot />
+    <Toaster client:load richColors position="top-right" />
   </body>
 </html>
 

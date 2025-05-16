@@ -1,0 +1,58 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import { NavigationItem } from "@/components/dashboard/NavigationItem.tsx"; // Poprawiony import
+
+// Dodatkowe zabezpieczenie: Middleware powinno już to obsłużyć,
+// ale dla pewności możemy sprawdzić Astro.locals.user
+if (!Astro.locals.user) {
+  return Astro.redirect("/login");
+}
+
+const userName = Astro.locals.user?.email?.split('@')[0] || 'Użytkowniku';
+
+const navigationItems = [
+  {
+    title: "Generuj fiszki z AI",
+    href: "/generate-ai",
+    description: "Automatycznie twórz zestawy fiszek na podstawie Twoich materiałów."
+  },
+  {
+    title: "Stwórz fiszki manualnie",
+    href: "/create-manual",
+    description: "Pełna kontrola nad procesem tworzenia Twoich fiszek."
+  },
+  {
+    title: "Moje zestawy fiszek",
+    href: "/my-flashcards",
+    description: "Przeglądaj i zarządzaj swoimi kolekcjami fiszek."
+  }
+];
+---
+
+<Layout title="Dashboard - 10x Cards">
+  <main class="container mx-auto py-8 px-4">
+    <header class="mb-12">
+      <h1 class="text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
+        Witaj, <span class="text-primary">{userName}</span>!
+      </h1>
+      <p class="mt-4 text-lg text-muted-foreground">
+        Co chcesz dzisiaj zrobić? Wybierz jedną z poniższych opcji, aby rozpocząć.
+      </p>
+    </header>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {navigationItems.map(item => (
+        <NavigationItem
+          client:load
+          title={item.title}
+          href={item.href}
+          description={item.description}
+        />
+      ))}
+    </div>
+  </main>
+</Layout>
+
+<style>
+  /* Można dodać specyficzne style dla Dashboard tutaj, jeśli Tailwind nie wystarcza */
+</style> 
