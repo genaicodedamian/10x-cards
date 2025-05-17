@@ -169,6 +169,30 @@ Kryteria akceptacji:
 - W przypadku wprowadzenia adresu e-mail, który nie istnieje w systemie, użytkownik widzi ten sam ogólny komunikat o wysłaniu instrukcji (ze względów bezpieczeństwa, aby nie ujawniać, które e-maile są zarejestrowane).
 - W przypadku błędów (np. token nieprawidłowy, wygasł, hasła niezgodne, hasło za krótkie) użytkownik widzi stosowne komunikaty na stronie `/reset-password/:token`.
 
+ID: US-011
+Tytuł: Dostęp do Panelu Użytkownika
+Opis: Jako zalogowany użytkownik, w widokach `/dashboard`, `/generate-ai`, `/create-manual`, `/my-flashcards` oraz `/study-session/:setId`, chcę mieć stały dostęp do Panelu Użytkownika (np. w Top Barze), aby móc łatwo wylogować się lub usunąć konto.
+Kryteria akceptacji:
+- W widokach `/dashboard`, `/generate-ai`, `/create-manual`, `/my-flashcards` oraz `/study-session/:setId`, zalogowany użytkownik widzi Panel Użytkownika (zgodnie z definicją widoku nr 8. w `.ai/ui-plan.md`).
+- Panel Użytkownika (np. jako `DropdownMenu` w Top Barze) zawiera opcję "Wyloguj".
+- Kliknięcie "Wyloguj" powoduje wylogowanie użytkownika i przekierowanie na Ekran Startowy (`/`).
+- Panel Użytkownika zawiera opcję "Usuń konto".
+- Kliknięcie "Usuń konto" otwiera `AlertDialog` z prośbą o potwierdzenie.
+- Po potwierdzeniu w `AlertDialog`, konto użytkownika i wszystkie powiązane dane są usuwane, a użytkownik jest przekierowywany na stronę rejestracji (`/register`) lub logowania (`/login`).
+
+ID: US-012
+Tytuł: Resetowanie hasła przez zalogowanego użytkownika
+Opis: Jako zalogowany użytkownik, który chce zmienić swoje hasło (np. ze względów bezpieczeństwa lub bo obecne jest trudne do zapamiętania), chcę mieć możliwość zainicjowania procesu resetowania hasła i ustawienia nowego.
+Kryteria akceptacji:
+- Zalogowany użytkownik ma dostęp do opcji zmiany/resetowania hasła (np. poprzez link/przycisk w Panelu Użytkownika lub dedykowanej sekcji ustawień konta - do ustalenia, na razie przyjmijmy, że jest to element Panelu Użytkownika).
+- Po kliknięciu opcji zmiany/resetowania hasła, użytkownik jest proszony o podanie swojego aktualnego adresu e-mail (tego, na który jest zalogowany).
+- Na podany adres e-mail wysyłana jest wiadomość z unikalnym linkiem do resetowania hasła (proces analogiczny do US-010, ale inicjowany przez zalogowanego użytkownika).
+- Link w wiadomości e-mail prowadzi do strony `/reset-password/:token` (zgodnie z definicją widoku nr 10. w `.ai/ui-plan.md`), gdzie użytkownik może wprowadzić nowe hasło oraz jego potwierdzenie.
+- Nowe hasło musi spełniać te same kryteria co hasło przy rejestracji (min. 7 znaków).
+- Po pomyślnym zresetowaniu hasła, użytkownik jest informowany o sukcesie (np. komunikatem "Hasło zostało pomyślnie zmienione.") i pozostaje zalogowany lub jest proszony o ponowne zalogowanie się nowym hasłem.
+- Link do resetowania hasła jest jednorazowy i ma ograniczony czas ważności.
+- W przypadku błędów (np. token nieprawidłowy, wygasł, hasła niezgodne, hasło za krótkie) użytkownik widzi stosowne komunikaty na stronie `/reset-password/:token`.
+
 ## 6. Metryki sukcesu
 1. Efektywność generowania fiszek:
    - 75% wygenerowanych przez AI fiszek jest akceptowanych przez użytkownika.

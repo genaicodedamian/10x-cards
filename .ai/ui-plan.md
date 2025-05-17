@@ -113,7 +113,7 @@ Interfejs będzie responsywny, wykorzystując Tailwind CSS i predefiniowane komp
     *   Dostępność: Wszystkie interaktywne elementy dostępne z klawiatury. Ikony-przyciski z `aria-label`. Modale poprawnie zarządzające focusem.
     *   Bezpieczeństwo: Treść tekstu przesyłana do API.
 
-### 5. Widok Manualnego Tworzenia Fiszki
+### 5. Widok Manualnego Tworzenia Fiszek
 *   **Nazwa widoku**: Stwórz Fiszki Manualnie
 *   **Ścieżka widoku**: `/create-manual`
 *   **Główny cel**: Umożliwienie użytkownikowi ręcznego tworzenia fiszek i zapisania ich jako nowy zestaw.
