@@ -1,0 +1,23 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import FlashcardSetListWrapper from '@/components/my-flashcards/FlashcardSetListWrapper';
+import { Button } from "@/components/ui/button";
+
+// Middleware Astro powinno obsłużyć przekierowanie, jeśli Astro.locals.user nie istnieje.
+// Można dodać dodatkowe sprawdzenie, jeśli jest taka potrzeba, ale plan tego nie wymaga.
+// if (!Astro.locals.user) {
+// return Astro.redirect('/login'); // Przykład, jeśli middleware tego nie robi
+// }
+---
+
+<Layout title="Moje Fiszki">
+  <div class="container mx-auto py-8 px-4">
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-3xl font-bold">Moje Fiszki</h1>
+      <Button asChild variant="outline">
+        <a href="/dashboard">Powrót do Dashboardu</a>
+      </Button>
+    </div>
+    <FlashcardSetListWrapper client:load />
+  </div>
+</Layout> 

@@ -222,6 +222,18 @@ export interface TemporaryFlashcard {
   back: string;
 }
 
+/**
+ * ViewModel for a flashcard set displayed in the "My Flashcards" view.
+ */
+export interface FlashcardSetViewModel {
+  id: string;
+  name: string;
+  flashcardCount: number;
+  status: "AI Generated" | "Manual";
+  lastStudiedDisplay: string; // np. "Ostatnia nauka: 01.01.2024" lub "Nigdy nie uczono"
+  studyLink: string; // np. /study-session/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+}
+
 //-----------------------------------------------------------------------------
 // User Command Models & DTOs (Minimal for now)
 //-----------------------------------------------------------------------------

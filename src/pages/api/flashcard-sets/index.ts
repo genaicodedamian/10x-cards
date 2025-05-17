@@ -1,7 +1,7 @@
 import type { APIContext } from "astro";
 import { z } from "zod";
 import type { CreateFlashcardSetCommand } from "../../../types";
-import { DEFAULT_USER_ID } from "../../../db/supabase.client";
+// import { DEFAULT_USER_ID } from "../../../db/supabase.client"; // Już niepotrzebne dla GET
 import { flashcardSetService } from "../../../lib/services/flashcardSetService"; // Import the service instance
 import { GetFlashcardSetsQuerySchema } from "../../../lib/schemas/flashcardSetSchemas";
 
@@ -117,26 +117,30 @@ export async function POST(context: APIContext): Promise<Response> {
 
 export async function GET(context: APIContext) {
   const { locals, url } = context;
-  const supabase = locals.supabase; // Retrieve supabase client directly
+  const supabase = locals.supabase;
+  const user = locals.user; // Pobierz obiekt użytkownika
 
-  // Temporarily comment out user authentication check for UI development
-  /*
-  if (!locals.user || !locals.supabase) {
-    return new Response(JSON.stringify({ message: 'Unauthorized' }), {
+  console.log("[API GET /api/flashcard-sets] Received request. URL:", url.toString());
+
+  // Sprawdzenie użytkownika i klienta Supabase
+  if (!user) {
+    console.error("[API GET /api/flashcard-sets] Unauthorized: User not found in locals.");
+    return new Response(JSON.stringify({ message: 'Unauthorized: User not authenticated.' }), {
       status: 401,
       headers: { 'Content-Type': 'application/json' },
     });
   }
-  */
+  const userId = user.id;
+  console.log(`[API GET /api/flashcard-sets] Authenticated User ID: ${userId}`);
 
-  // Ensure supabase client is available, even if user check is off
   if (!supabase) {
-    console.error("Supabase client not found in context.locals");
+    console.error("[API GET /api/flashcard-sets] Supabase client not found in locals.");
     return new Response(JSON.stringify({ message: "Internal Server Error: Supabase client missing" }), {
       status: 500,
       headers: { "Content-Type": "application/json" },
     });
   }
+  console.log("[API GET /api/flashcard-sets] Supabase client found in locals.");
 
   const queryParams = {
     page: url.searchParams.get("page"),
@@ -144,13 +148,15 @@ export async function GET(context: APIContext) {
     sort_by: url.searchParams.get("sort_by"),
     order: url.searchParams.get("order"),
   };
+  console.log("[API GET /api/flashcard-sets] Raw query params:", queryParams);
 
   const validationResult = GetFlashcardSetsQuerySchema.safeParse(queryParams);
 
   if (!validationResult.success) {
+    console.error("[API GET /api/flashcard-sets] Query params validation failed:", validationResult.error.flatten().fieldErrors);
     return new Response(
       JSON.stringify({
-        message: "Bad Request",
+        message: "Bad Request: Invalid query parameters.",
         errors: validationResult.error.flatten().fieldErrors,
       }),
       {
@@ -161,11 +167,13 @@ export async function GET(context: APIContext) {
   }
 
   const { page, limit, sort_by, order } = validationResult.data;
+  console.log("[API GET /api/flashcard-sets] Validated query params:", { page, limit, sort_by, order });
 
   try {
+    console.log(`[API GET /api/flashcard-sets] Calling flashcardSetService.getFlashcardSets for user: ${userId}`);
     const result = await flashcardSetService.getFlashcardSets(
-      supabase, // Use Supabase client from context
-      DEFAULT_USER_ID, // Use DEFAULT_USER_ID instead of locals.user.id
+      supabase, 
+      userId, // Użyj ID faktycznie zalogowanego użytkownika
       {
         page,
         limit,
@@ -173,22 +181,24 @@ export async function GET(context: APIContext) {
         order,
       }
     );
+    console.log("[API GET /api/flashcard-sets] Result from service:", result);
 
     if (result.error) {
-      console.error("Service error when fetching flashcard sets:", result.error);
-      return new Response(JSON.stringify({ message: "Internal Server Error" }), {
+      console.error("[API GET /api/flashcard-sets] Service error when fetching flashcard sets:", result.error);
+      return new Response(JSON.stringify({ message: "Internal Server Error while fetching data." }), {
         status: 500,
         headers: { "Content-Type": "application/json" },
       });
     }
 
+    console.log("[API GET /api/flashcard-sets] Successfully fetched data. Items count:", result.data?.length);
     return new Response(JSON.stringify({ data: result.data, pagination: result.pagination }), {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });
   } catch (error) {
-    console.error("API handler error when fetching flashcard sets:", error);
-    return new Response(JSON.stringify({ message: "Internal Server Error" }), {
+    console.error("[API GET /api/flashcard-sets] Unexpected API handler error:", error);
+    return new Response(JSON.stringify({ message: "Internal Server Error due to an unexpected issue." }), {
       status: 500,
       headers: { "Content-Type": "application/json" },
     });

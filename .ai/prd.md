@@ -141,11 +141,12 @@ ID: US-008A
 Tytuł: Widok listy zestawów fiszek i zarządzanie nimi
 Opis: Jako zalogowany użytkownik chcę mieć dostęp do ekranu `/my-flashcards`, gdzie mogę widzieć listę wszystkich moich zestawów fiszek, zarządzać nimi oraz inicjować sesje nauki.
 Kryteria akceptacji:
-- Na ekranie `/my-flashcards` wyświetlana jest lista wszystkich zestawów fiszek stworzonych przez użytkownika.
+- Na ekranie `/my-flashcards` wyświetlana jest lista wszystkich zestawów fiszek stworzonych przez użytkownika. Lista jest paginowana, wyświetlając po 15 zestawów na stronę. Jeśli zestawów jest więcej, użytkownik widzi kontrolki paginacji.
+- Lista jest domyślnie sortowana według daty ostatniej sesji nauki (malejąco, zestawy "Nigdy nie uczono" na końcu), a następnie według daty utworzenia zestawu (malejąco).
 - Dla każdego zestawu widoczna jest:
     - Nazwa zestawu.
     - Ilość fiszek w zestawie.
-    - Status pochodzenia zestawu: 'ai_generated', 'ai_generated_edited', lub 'manual'.
+    - Status pochodzenia zestawu: 'AI Generated' lub 'Manual'.
     - Data ostatniej sesji nauki dla danego zestawu (jeśli była).
 - Przy każdym zestawie znajduje się opcja "Rozpocznij naukę", która przenosi użytkownika na ekran `/study-session/:setId` (gdzie `:setId` to identyfikator wybranego zestawu).
 - Przy każdym zestawie znajduje się opcja "Usuń zestaw".

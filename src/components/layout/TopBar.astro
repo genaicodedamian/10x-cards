@@ -1,5 +1,7 @@
 ---
 // src/components/layout/TopBar.astro
+// TODO: Implementacja TopBar zgodnie z planem UI (logo, menu użytkownika dla zalogowanych)
+const user = Astro.locals.user; // Przykład pobrania użytkownika
 ---
 
 <header
@@ -33,6 +35,13 @@
         </svg>
         <span class="font-bold sm:inline-block">10x-cards</span>
       </a>
+    </div>
+    <div>
+      {user ? (
+        <span class="text-sm">Zalogowano jako: {user.email} (Placeholder Menu)</span>
+      ) : (
+        <a href="/login" class="text-sm hover:underline">Zaloguj się</a>
+      )}
     </div>
   </div>
 </header>

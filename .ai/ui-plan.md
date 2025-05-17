@@ -141,24 +141,25 @@ Interfejs będzie responsywny, wykorzystując Tailwind CSS i predefiniowane komp
 ### 6. Widok Moje Zestawy Fiszek
 *   **Nazwa widoku**: Moje Fiszki
 *   **Ścieżka widoku**: `/my-flashcards`
-*   **Główny cel**: Wyświetlenie listy wszystkich zestawów fiszek użytkownika, umożliwienie rozpoczęcia nauki (oraz w przyszłości usunięcia zestawu).
-*   **Kluczowe informacje do wyświetlenia**: Lista zestawów zawierająca: nazwę zestawu, ilość fiszek, status pochodzenia ('ai_generated', 'ai_generated_edited', 'manual'), datę ostatniej sesji nauki (jeśli była), oraz akcje.
+*   **Główny cel**: Wyświetlenie listy wszystkich zestawów fiszek użytkownika, umożliwienie rozpoczęcia nauki (oraz w przyszłości usunięcia zestawu). Lista jest paginowana (15 zestawów na stronę) i domyślnie sortowana (najpierw wg daty ostatniej nauki malejąco, potem wg daty utworzenia malejąco).
+*   **Kluczowe informacje do wyświetlenia**: Lista zestawów zawierająca: nazwę zestawu, ilość fiszek, status pochodzenia ('AI Generated', 'Manual'), datę ostatniej sesji nauki (jeśli była), oraz akcje.
 *   **Kluczowe komponenty widoku**:
     *   Lista lub siatka zestawów (np. każda pozycja jako `Card` z Shadcn/ui).
     *   Dla każdego zestawu:
         *   `CardTitle` (Shadcn/ui): Nazwa zestawu.
         *   `CardDescription` lub tekst:
             *   Ilość fiszek w zestawie.
-            *   Status pochodzenia zestawu (np. "AI Generated", "AI Generated (Edited)", "Manual").
+            *   Status pochodzenia zestawu (np. "AI Generated", "Manual").
             *   Data ostatniej sesji nauki (np. "Ostatnia nauka: DD.MM.RRRR" lub "Nigdy nie uczono").
-        *   `Button` (Shadcn/ui): "Rozpocznij naukę" (prowadzący do `/study-session/:setId`).
+        *   Link `<a>` stylizowany jako `Button` (Shadcn/ui): "Rozpocznij naukę" (prowadzący do `/study-session/:setId`).
         *   `Button` (Shadcn/ui, wariant ikony, **wyszarzony**): "Usuń zestaw" (ikona 🗑️).
             *   `Tooltip` (Shadcn/ui) na przycisku "Usuń zestaw": Wyświetla "Funkcja dostępna wkrótce" lub "Coming soon...".
     *   (W przyszłości) `AlertDialog` (Shadcn/ui): Modal potwierdzający usunięcie zestawu (wyświetlany po kliknięciu aktywnego przycisku "Usuń zestaw").
-    *   Komunikat: "Nie masz jeszcze żadnych zestawów..." jeśli lista jest pusta.
+    *   Komunikat: "Nie masz jeszcze żadnych zestawów..." jeśli lista jest pusta (na danej stronie paginacji lub w ogóle).
+    *   Komponent `PaginationControls` (własny, React): Wyświetlany, jeśli `totalPages > 1`, zawierający przyciski do nawigacji stronami.
 *   **UX, dostępność i względy bezpieczeństwa**:
-    *   UX: Przejrzysta lista z łatwym dostępem do akcji. Wyraźne wskazanie tymczasowo niedostępnej funkcji usuwania.
-    *   Dostępność: Elementy listy i przyciski dostępne z klawiatury, poprawnie opisane. Wyszarzony przycisk odpowiednio oznaczony dla czytników ekranu.
+    *   UX: Przejrzysta lista z łatwym dostępem do akcji. Wyraźne wskazanie tymczasowo niedostępnej funkcji usuwania. Intuicyjna obsługa paginacji, jeśli zestawów jest więcej niż na jedną stronę.
+    *   Dostępność: Elementy listy i przyciski dostępne z klawiatury, poprawnie opisane. Wyszarzony przycisk odpowiednio oznaczony dla czytników ekranu. Kontrolki paginacji dostępne i poprawnie opisane.
     *   Bezpieczeństwo: Wyświetla tylko zestawy zalogowanego użytkownika (RLS w bazie).
 
 ### 7. Widok Sesji Nauki
@@ -273,8 +274,8 @@ Interfejs będzie responsywny, wykorzystując Tailwind CSS i predefiniowane komp
 
 4.  **Przeglądanie zestawów i rozpoczęcie nauki**:
     *   Użytkownik na `/dashboard` -> Klik "Moje zestawy fiszek" -> Przejście na `/my-flashcards`.
-    *   Na `/my-flashcards`: Przegląda listę swoich zestawów.
-    *   Znajduje interesujący zestaw -> Klik "Rozpocznij naukę" przy wybranym zestawie.
+    *   Na `/my-flashcards`: Przegląda listę swoich zestawów. Jeśli zestawów jest więcej niż 15, widzi kontrolki paginacji i może przełączać strony.
+    *   Znajduje interesujący zestaw -> Klik link "Rozpocznij naukę" przy wybranym zestawie.
     *   Przejście na `/study-session/:setId`.
 
 5.  **Sesja nauki**:
@@ -366,5 +367,8 @@ Poniżej lista kluczowych, potencjalnie reużywalnych komponentów, w większoś
 8.  **Komponenty powiadomień Shadcn/ui**:
     *   `Sonner` (Toast): Do wyświetlania krótkich powiadomień o sukcesie operacji (np. utworzenie zestawu).
     *   `Tooltip`: Do wyświetlania dodatkowych informacji (np. `validation_message` przy sugestiach AI).
+9.  **`PaginationControls` (Własny komponent React)**:
+    *   Opis: Wyświetla kontrolki paginacji (przyciski Poprzednia/Następna, numery stron), jeśli liczba elementów przekracza limit na stronę.
+    *   Używany w: `/my-flashcards`.
 
 Wszystkie komponenty będą tworzone z uwzględnieniem responsywności (Tailwind CSS) i dostępności (ARIA).

@@ -321,7 +321,7 @@ const AIFlashcardGenerator: React.FC = () => {
         </Button>
       </div>
 
-      <h1 className="text-3xl font-bold text-center mb-8 pt-10 md:pt-0">Generator Fiszke AI</h1>
+      <h1 className="text-3xl font-bold text-center mb-8 pt-10 md:pt-0">Generator Fiszek z AI</h1>
 
       <SourceTextInput
         sourceText={sourceText}

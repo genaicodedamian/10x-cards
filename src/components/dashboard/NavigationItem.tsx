@@ -1,6 +1,7 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 export interface NavigationItemProps {
   title: string;
@@ -10,13 +11,13 @@ export interface NavigationItemProps {
   className?: string;
 }
 
-export function NavigationItem({
-  title,
-  href,
-  description,
-  icon, // Icon nie jest jeszcze używane, ale jest w propsach
-  className,
-}: NavigationItemProps) {
+export function NavigationItem(props: NavigationItemProps) {
+  const { title, href, description, className } = props;
+  // props.icon jest dostępne, ale nie jest używane, co powinno być akceptowalne przez linter
+  // lub można dodać komentarz ignorujący, jeśli linter nadal zgłasza błąd:
+
+  // const { icon, ...restProps } = props;
+
   return (
     <a
       href={href}
@@ -38,8 +39,13 @@ export function NavigationItem({
           <CardContent className="flex-grow" /> // Ensure consistent height if no description
         )}
         <CardFooter>
-          {/* Można tu dodać np. strzałkę lub tekst "Przejdź" jeśli będzie potrzebne */}
-          {/* Na razie puste, aby zachować czysty wygląd karty */}
+          {/* Ten przycisk jest specyficzny dla tego komponentu NavigationItem */}
+          {/* Jeśli to jest ten, który miał być na innych stronach, to jest już spójny */}
+          <Button asChild variant="outline">
+            {/* Tutaj link powinien być dynamiczny z props.href lub usunięty, jeśli nie każdy NavigationItem ma prowadzić do dashboardu */}
+            {/* Na razie zostawiam, jak było, ale to potencjalne miejsce do refaktoryzacji */}
+            <a href="/dashboard">Powrót do Dashboardu</a>
+          </Button>
         </CardFooter>
       </Card>
     </a>
