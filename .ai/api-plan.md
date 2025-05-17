@@ -18,6 +18,18 @@
 
 Supabase Auth handles user registration, login, password reset, etc. The API will rely on Supabase for user identity. No custom endpoints are typically needed for these basic auth operations, as they are handled by the Supabase client SDK. We will define an endpoint to delete user data as per RODO.
 
+**Registration, Login, Logout**: These operations are primarily handled by the Supabase client SDK (`supabase.auth.signUp()`, `supabase.auth.signInWithPassword()`, `supabase.auth.signOut()`). The frontend will interact directly with these SDK methods.
+- **Error Handling**: The Supabase client SDK provides error objects. The frontend should map these to user-friendly messages described in `.ai/prd.md` and `.ai/ui-plan.md`.
+    - Common errors during registration: email already in use, invalid email format, password too short (Supabase default is 6 chars, our requirement is 7 - client-side validation will be key here, and Supabase may also enforce its minimum if not configured otherwise).
+    - Common errors during login: invalid credentials.
+
+**Password Reset**: This is also managed by Supabase Auth.
+1.  **Requesting a password reset**: The client calls `supabase.auth.resetPasswordForEmail('user@example.com', { redirectTo: 'http://localhost:4321/reset-password' })`. Supabase sends an email with a link.
+    - The `redirectTo` URL should point to our frontend page `/reset-password` where the user can enter a new password. The token will be part of the URL fragment.
+    - API should handle potential errors from Supabase (e.g., user not found, though Supabase typically sends a generic success message for security).
+2.  **Setting a new password**: When the user clicks the link in the email and lands on `/reset-password/:token` (the token is extracted from the URL fragment by the client), the client then calls `supabase.auth.updateUser({ password: newPassword })` after the user provides a new password. Supabase handles token validation and password update.
+    - Common errors: invalid or expired token, new password too short.
+
 #### `DELETE /api/users/me`
 
 -   **Description**: Allows a logged-in user to delete their account and all associated data (flashcard sets, flashcards).
@@ -558,9 +570,9 @@ Supabase Auth handles user registration, login, password reset, etc. The API wil
 
 ## 3. Authentication and Authorization
 
--   **Authentication Mechanism**: Supabase Auth will be used. Clients (Astro frontend) will use the Supabase client library to handle user registration, login, and session management (JWTs).
+-   **Authentication Mechanism**: Supabase Auth will be used. Clients (Astro frontend) will use the Supabase client library to handle user registration, login, session management (JWTs), password reset, and logout.
 -   **Implementation Details**:
-    -   API endpoints (Astro API routes) will expect a JWT in the `Authorization` header (`Bearer <token>`).
+    -   For custom API endpoints (like `/api/flashcard-sets`), they will expect a JWT in the `Authorization` header (`Bearer <token>`).
     -   On the server-side, the Supabase Admin SDK or a server client will be used to verify the JWT and retrieve the authenticated user's ID (`auth.uid()`).
     -   This `user_id` will be used in database queries to ensure users can only access their own data.
 -   **Authorization**:
@@ -572,10 +584,11 @@ Supabase Auth handles user registration, login, password reset, etc. The API wil
 This section will be refactored. The specific validation rules and business logic items previously listed here have been moved into the **Business Logic** paragraph of each respective endpoint defined above for better co-location and clarity.
 
 The general principles remain:
-- Input validation is performed at the API layer before processing.
+- Input validation is performed at the API layer before processing (and also on the client-side for better UX).
 - Database constraints (e.g., uniqueness, check constraints, foreign keys) provide a an additional layer of data integrity.
 - Row Level Security (RLS) policies in PostgreSQL ensure users can only access and modify their own data.
 - Application logic handles specific workflows, such as count maintenance in `flashcard_sets` and interactions with external AI services.
 - Error logging, particularly for AI generation, is crucial for monitoring and debugging.
+- For authentication-related errors (registration, login, password reset), the primary source of error information will be the Supabase client SDK. The frontend is responsible for translating these errors into user-friendly messages as defined in the PRD and UI Plan.
 
 This API plan provides a comprehensive structure for the 10x-cards application, aligning with the PRD, database schema, and tech stack. 

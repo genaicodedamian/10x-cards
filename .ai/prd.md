@@ -64,17 +64,20 @@ Tytuł: Rejestracja konta
 Opis: Jako nowy użytkownik chcę się zarejestrować, aby mieć dostęp do własnych fiszek i móc korzystać z generowania fiszek przez AI.
 Kryteria akceptacji:
 - Formularz rejestracyjny na stronie `/register` zawiera pola na adres e-mail, hasło i potwierdzenie hasła.
-- Po poprawnym wypełnieniu formularza i weryfikacji danych konto jest aktywowane.
-- Użytkownik otrzymuje potwierdzenie pomyślnej rejestracji (np. komunikat toast na następnym ekranie) i zostaje automatycznie zalogowany oraz przekierowany na `/dashboard`.
+- Hasło musi mieć co najmniej 7 znaków.
+- Po poprawnym wypełnieniu formularza i weryfikacji danych (unikalność e-maila, spełnienie wymagań co do hasła, zgodność haseł) konto jest aktywowane.
+- Użytkownik otrzymuje potwierdzenie pomyślnej rejestracji (np. komunikat toast na następnym ekranie: "Rejestracja zakończona pomyślnie!") i zostaje automatycznie zalogowany oraz przekierowany na `/dashboard`.
+- W przypadku błędów walidacji (np. e-mail w niepoprawnym formacie, hasło za krótkie, hasła niezgodne) użytkownik widzi stosowne komunikaty przy odpowiednich polach formularza.
+- W przypadku próby rejestracji na istniejący już adres e-mail, użytkownik widzi komunikat: "Użytkownik o podanym adresie e-mail już istnieje."
 
 ID: US-002
 Tytuł: Logowanie do aplikacji
 Opis: Jako zarejestrowany użytkownik chcę móc się zalogować, aby mieć dostęp do moich fiszek i historii generowania.
 Kryteria akceptacji:
 - Formularz logowania na stronie `/login` zawiera pola na adres e-mail i hasło.
-- Po podaniu prawidłowych danych logowania użytkownik zostaje przekierowany na `/dashboard`.
-- Błędne dane logowania wyświetlają komunikat o nieprawidłowych danych na stronie logowania.
-- Dane dotyczące logowania przechowywane są w bezpieczny sposób.
+- Po podaniu prawidłowych danych logowania użytkownik zostaje przekierowany na `/dashboard` i widzi komunikat toast (np. "Zalogowano pomyślnie!").
+- Błędne dane logowania (nieprawidłowy e-mail lub hasło) wyświetlają komunikat: "Nieprawidłowy adres e-mail lub hasło." na stronie logowania.
+- Dane dotyczące logowania przechowywane są w bezpieczny sposób (zapewnione przez Supabase Auth).
 
 ID: US-002a
 Tytuł: Dostęp do Głównego Panelu Nawigacyjnego (Dashboard)
@@ -150,6 +153,21 @@ Opis: Jako zalogowany użytkownik chcę mieć pewność, że moje zestawy fiszek
 Kryteria akceptacji:
 - Tylko zalogowany użytkownik może wyświetlać, tworzyć i usuwać swoje zestawy fiszek oraz przeprowadzać na nich sesje nauki.
 - Mechanizmy autoryzacji (np. RLS w bazie danych) zapewniają, że użytkownik ma dostęp wyłącznie do swoich danych.
+
+ID: US-010
+Tytuł: Resetowanie zapomnianego hasła
+Opis: Jako użytkownik, który zapomniał swojego hasła, chcę mieć możliwość jego zresetowania, aby odzyskać dostęp do konta.
+Kryteria akceptacji:
+- Na stronie logowania (`/login`) znajduje się link "Zapomniałeś hasła?".
+- Po kliknięciu linku użytkownik jest przenoszony na stronę `/forgot-password`, gdzie znajduje się formularz do wprowadzenia adresu e-mail powiązanego z kontem.
+- Po poprawnym wprowadzeniu adresu e-mail i jego weryfikacji (czy istnieje w bazie), na podany adres e-mail wysyłana jest wiadomość z unikalnym linkiem do resetowania hasła.
+- Użytkownik widzi komunikat na stronie `/forgot-password` informujący o wysłaniu instrukcji resetowania hasła (np. "Jeśli konto o podanym adresie e-mail istnieje, wysłaliśmy na nie instrukcję resetowania hasła.").
+- Link w wiadomości e-mail prowadzi do strony `/reset-password/:token`, gdzie użytkownik może wprowadzić nowe hasło oraz jego potwierdzenie.
+- Nowe hasło musi spełniać te same kryteria co hasło przy rejestracji (min. 7 znaków).
+- Po pomyślnym zresetowaniu hasła, użytkownik jest informowany o sukcesie (np. komunikatem "Hasło zostało pomyślnie zmienione. Możesz się teraz zalogować.") i może przejść do strony logowania.
+- Link do resetowania hasła jest jednorazowy i ma ograniczony czas ważności (np. 1 godzina – domyślne zachowanie Supabase lub konfigurowalne).
+- W przypadku wprowadzenia adresu e-mail, który nie istnieje w systemie, użytkownik widzi ten sam ogólny komunikat o wysłaniu instrukcji (ze względów bezpieczeństwa, aby nie ujawniać, które e-maile są zarejestrowane).
+- W przypadku błędów (np. token nieprawidłowy, wygasł, hasła niezgodne, hasło za krótkie) użytkownik widzi stosowne komunikaty na stronie `/reset-password/:token`.
 
 ## 6. Metryki sukcesu
 1. Efektywność generowania fiszek:

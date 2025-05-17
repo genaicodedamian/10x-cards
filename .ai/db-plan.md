@@ -100,22 +100,26 @@ ALTER TABLE public.flashcard_sets ENABLE ROW LEVEL SECURITY;
 -- Policy: Users can SELECT their own sets
 CREATE POLICY "Allow users to select their own flashcard sets"
 ON public.flashcard_sets FOR SELECT
+TO authenticated
 USING (auth.uid() = user_id);
 
 -- Policy: Users can INSERT sets for themselves
 CREATE POLICY "Allow users to insert their own flashcard sets"
 ON public.flashcard_sets FOR INSERT
+TO authenticated
 WITH CHECK (auth.uid() = user_id);
 
 -- Policy: Users can UPDATE their own sets
 CREATE POLICY "Allow users to update their own flashcard sets"
 ON public.flashcard_sets FOR UPDATE
+TO authenticated
 USING (auth.uid() = user_id)
 WITH CHECK (auth.uid() = user_id);
 
 -- Policy: Users can DELETE their own sets
 CREATE POLICY "Allow users to delete their own flashcard sets"
 ON public.flashcard_sets FOR DELETE
+TO authenticated
 USING (auth.uid() = user_id);
 ```
 
@@ -127,22 +131,26 @@ ALTER TABLE public.flashcards ENABLE ROW LEVEL SECURITY;
 -- Policy: Users can SELECT their own flashcards
 CREATE POLICY "Allow users to select their own flashcards"
 ON public.flashcards FOR SELECT
+TO authenticated
 USING (auth.uid() = user_id);
 
 -- Policy: Users can INSERT flashcards for themselves
 CREATE POLICY "Allow users to insert their own flashcards"
 ON public.flashcards FOR INSERT
+TO authenticated
 WITH CHECK (auth.uid() = user_id);
 
 -- Policy: Users can UPDATE their own flashcards
 CREATE POLICY "Allow users to update their own flashcards"
 ON public.flashcards FOR UPDATE
+TO authenticated
 USING (auth.uid() = user_id)
 WITH CHECK (auth.uid() = user_id);
 
 -- Policy: Users can DELETE their own flashcards
 CREATE POLICY "Allow users to delete their own flashcards"
 ON public.flashcards FOR DELETE
+TO authenticated
 USING (auth.uid() = user_id);
 ```
 
@@ -154,6 +162,7 @@ ALTER TABLE public.generation_error_logs ENABLE ROW LEVEL SECURITY;
 -- Policy: Users can SELECT their own error logs
 CREATE POLICY "Allow users to select their own generation error logs"
 ON public.generation_error_logs FOR SELECT
+TO authenticated
 USING (auth.uid() = user_id);
 
 -- Policy: System/Backend can INSERT error logs (assuming inserts are done by a trusted role or service worker)
@@ -164,9 +173,12 @@ USING (auth.uid() = user_id);
 -- If inserts are done by the user's session, the following is more appropriate:
 CREATE POLICY "Allow users to insert their own generation error logs"
 ON public.generation_error_logs FOR INSERT
+TO authenticated
 WITH CHECK (auth.uid() = user_id);
 
 -- No UPDATE or DELETE policies are typically defined for log tables, as logs are usually append-only.
+-- Note: The policies above are intended for the 'authenticated' role. Policies for the 'anon' role are not defined
+-- as anonymous users should not have direct access to these tables according to the current requirements.
 ```
 
 ## 5. Additional Notes and Design Decisions
@@ -200,3 +212,4 @@ WITH CHECK (auth.uid() = user_id);
 *   **`source_text_length` Check**: The `CHECK` constraint for `flashcard_sets.source_text_length` and `generation_error_logs.source_text_length` allows `NULL` values but enforces the range if a value is provided.
 *   **`generation_error_logs` RLS**: The RLS policy for inserting into `generation_error_logs` assumes that either the backend uses a privileged role (bypassing RLS for inserts) or that the user's session is directly responsible for logging their own errors. If a service role is used for inserts, the `WITH CHECK` clause for insert RLS on this table might not be strictly necessary for user-specific checks at the policy level but rather handled by application logic populating `user_id` correctly.
 *   **VARCHAR Lengths**: `VARCHAR(64)` for `source_text_hash` assumes a common hash length like SHA-256. `VARCHAR(255)` for `model` and `VARCHAR(100)` for `error_code` are general-purpose lengths and can be adjusted if more specific limits are known.
+*   **User Authentication and Management**: User table (`auth.users`) and related authentication mechanisms (including password reset tokens and procedures) are managed by Supabase Auth. The schema described here primarily focuses on application-specific data tables and their relation to `auth.users`.

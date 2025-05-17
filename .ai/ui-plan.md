@@ -41,8 +41,10 @@ Interfejs będzie responsywny, wykorzystując Tailwind CSS i predefiniowane komp
     *   `Label` (Shadcn/ui): Etykiety pól.
     *   `Input` (Shadcn/ui): Pola na adres e-mail i hasło.
     *   `Button` (Shadcn/ui): Przycisk "Zaloguj się".
-    *   Link tekstowy: "Nie masz konta? Zarejestruj się".
-    *   Komunikaty o błędach walidacji lub logowania.
+    *   Link tekstowy: "Nie masz konta? Zarejestruj się" (prowadzący do `/register`).
+    *   Link tekstowy: "Zapomniałeś hasła?" (prowadzący do `/forgot-password`).
+    *   Komunikaty o błędach logowania (np. "Nieprawidłowy adres e-mail lub hasło.").
+    *   `Sonner` (Shadcn/ui) lub podobny komponent do wyświetlania powiadomień "toast" (np. "Zalogowano pomyślnie!" po przekierowaniu na Dashboard).
 *   **UX, dostępność i względy bezpieczeństwa**:
     *   UX: Prosty i klarowny formularz. Walidacja po stronie klienta dla formatu e-mail i wymaganych pól.
     *   Dostępność: Poprawne etykietowanie pól (`aria-labelledby`), obsługa focusu klawiatury.
@@ -56,12 +58,13 @@ Interfejs będzie responsywny, wykorzystując Tailwind CSS i predefiniowane komp
 *   **Kluczowe komponenty widoku**:
     *   `Card` (Shadcn/ui): Opakowanie formularza.
     *   `Label` (Shadcn/ui): Etykiety pól.
-    *   `Input` (Shadcn/ui): Pola na adres e-mail, hasło, potwierdzenie hasła.
+    *   `Input` (Shadcn/ui): Pola na adres e-mail, hasło (min. 7 znaków), potwierdzenie hasła.
     *   `Button` (Shadcn/ui): Przycisk "Zarejestruj się".
-    *   Link tekstowy: "Masz już konto? Zaloguj się".
-    *   Komunikaty o błędach walidacji.
+    *   Link tekstowy: "Masz już konto? Zaloguj się" (prowadzący do `/login`).
+    *   Komunikaty o błędach walidacji (np. e-mail w niepoprawnym formacie, hasło za krótkie, hasła niezgodne, e-mail już istnieje).
+    *   `Sonner` (Shadcn/ui) lub podobny komponent do wyświetlania powiadomień "toast" (np. "Rejestracja zakończona pomyślnie!" po przekierowaniu na Dashboard).
 *   **UX, dostępność i względy bezpieczeństwa**:
-    *   UX: Prosty formularz. Walidacja po stronie klienta (format e-mail, siła hasła - opcjonalnie w MVP, zgodność haseł).
+    *   UX: Prosty formularz. Walidacja po stronie klienta (format e-mail, minimalna długość hasła, zgodność haseł).
     *   Dostępność: Poprawne etykietowanie pól, obsługa focusu.
     *   Bezpieczeństwo: Hasło przesyłane bezpiecznie.
 
@@ -195,6 +198,40 @@ Interfejs będzie responsywny, wykorzystując Tailwind CSS i predefiniowane komp
     *   Dostępność: Menu i przyciski dostępne z klawiatury.
     *   Bezpieczeństwo: Krytyczna operacja usunięcia konta zabezpieczona potwierdzeniem.
 
+### 9. Widok Żądania Resetowania Hasła
+*   **Nazwa widoku**: Zapomniałem Hasła
+*   **Ścieżka widoku**: `/forgot-password`
+*   **Główny cel**: Umożliwienie użytkownikowi zainicjowania procesu resetowania hasła.
+*   **Kluczowe informacje do wyświetlenia**: Formularz do wprowadzenia adresu e-mail.
+*   **Kluczowe komponenty widoku**:
+    *   `Card` (Shadcn/ui): Opakowanie formularza.
+    *   `Label` (Shadcn/ui): Etykieta pola e-mail.
+    *   `Input` (Shadcn/ui): Pole na adres e-mail.
+    *   `Button` (Shadcn/ui): Przycisk "Wyślij link do resetowania hasła".
+    *   Link tekstowy: "Wróć do logowania" (prowadzący do `/login`).
+    *   Komunikat po wysłaniu (np. "Jeśli konto o podanym adresie e-mail istnieje, wysłaliśmy na nie instrukcję resetowania hasła.").
+*   **UX, dostępność i względy bezpieczeństwa**:
+    *   UX: Prosty formularz, jasny komunikat zwrotny.
+    *   Dostępność: Poprawne etykietowanie pól, obsługa focusu.
+    *   Bezpieczeństwo: Komunikat nie ujawnia, czy e-mail istnieje w bazie.
+
+### 10. Widok Resetowania Hasła
+*   **Nazwa widoku**: Resetuj Hasło
+*   **Ścieżka widoku**: `/reset-password/:token` (gdzie `:token` to unikalny token z e-maila)
+*   **Główny cel**: Umożliwienie użytkownikowi ustawienia nowego hasła.
+*   **Kluczowe informacje do wyświetlenia**: Formularz do wprowadzenia nowego hasła i jego potwierdzenia.
+*   **Kluczowe komponenty widoku**:
+    *   `Card` (Shadcn/ui): Opakowanie formularza.
+    *   `Label` (Shadcn/ui): Etykiety pól.
+    *   `Input` (Shadcn/ui): Pole na nowe hasło (min. 7 znaków), pole na potwierdzenie nowego hasła.
+    *   `Button` (Shadcn/ui): Przycisk "Ustaw nowe hasło".
+    *   Komunikaty o błędach (np. token nieprawidłowy/wygasł, hasła niezgodne, hasło za krótkie).
+    *   Komunikat o sukcesie (np. "Hasło zostało pomyślnie zmienione. Możesz się teraz zalogować.") z linkiem do `/login`.
+*   **UX, dostępność i względy bezpieczeństwa**:
+    *   UX: Klarowny proces zmiany hasła.
+    *   Dostępność: Poprawne etykietowanie pól, obsługa focusu.
+    *   Bezpieczeństwo: Token jest jednorazowy i ma ograniczony czas ważności.
+
 ## 3. Mapa podróży użytkownika
 
 0.  **Pierwsze wejście do aplikacji (niezalogowany użytkownik)**:
@@ -250,9 +287,20 @@ Interfejs będzie responsywny, wykorzystując Tailwind CSS i predefiniowane komp
     *   Aplikacja wysyła żądanie do API (`DELETE /api/flashcard-sets/{setId}`).
     *   Sukces -> Lista zestawów jest odświeżana (zestaw znika).
 
-7.  **Wylogowanie / Usuwanie konta**:
+7.  **Resetowanie zapomnianego hasła**:
+    *   Użytkownik na `/login` -> Klik "Zapomniałeś hasła?".
+    *   Przejście na `/forgot-password`.
+    *   Na `/forgot-password`: Wpisuje adres e-mail -> Klik "Wyślij link do resetowania hasła".
+    *   Aplikacja komunikuje się z API (np. Supabase Auth) w celu wysłania e-maila.
+    *   Użytkownik widzi komunikat o wysłaniu instrukcji.
+    *   Użytkownik odbiera e-mail, klika w link -> Przejście na `/reset-password/:token`.
+    *   Na `/reset-password/:token`: Wpisuje nowe hasło i jego potwierdzenie -> Klik "Ustaw nowe hasło".
+    *   Aplikacja komunikuje się z API (np. Supabase Auth) w celu zmiany hasła.
+    *   Sukces -> Wyświetlenie komunikatu o pomyślnej zmianie hasła, użytkownik może przejść do `/login`.
+
+8.  **Wylogowanie / Usuwanie konta**:
     *   Użytkownik klika na swoje menu w Top Barze.
-    *   Wybiera "Wyloguj" -> Przekierowanie na `/login`.
+    *   Wybiera "Wyloguj" -> Przekierowanie na `/` (Ekran Startowy).
     *   LUB Wybiera "Usuń konto" -> Otwiera się `AlertDialog` z potwierdzeniem -> Klik "Usuń konto".
     *   Aplikacja wysyła żądanie do API (`DELETE /api/users/me`).
     *   Sukces -> Przekierowanie na `/register` lub `/login`.
@@ -284,6 +332,8 @@ Interfejs będzie responsywny, wykorzystując Tailwind CSS i predefiniowane komp
     *   `/create-manual` - Manualne tworzenie fiszek
     *   `/my-flashcards` - Lista zestawów fiszek
     *   `/study-session/:setId` - Sesja nauki dla konkretnego zestawu
+    *   `/forgot-password` - Strona do zainicjowania resetu hasła
+    *   `/reset-password/:token` - Strona do ustawienia nowego hasła po resecie
 
 ## 5. Kluczowe komponenty
 
