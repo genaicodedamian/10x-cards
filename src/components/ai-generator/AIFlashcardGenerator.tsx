@@ -58,10 +58,10 @@ const AIFlashcardGenerator: React.FC = () => {
       setValidationMessage(null);
       setIsTextValid(false);
     } else if (len < MIN_TEXT_LENGTH) {
-      setValidationMessage(`Text must be at least ${MIN_TEXT_LENGTH} characters long.`);
+      setValidationMessage(`Tekst musi mieć przynajmniej ${MIN_TEXT_LENGTH} znaków.`);
       setIsTextValid(false);
     } else if (len > MAX_TEXT_LENGTH) {
-      setValidationMessage(`Text must be no more than ${MAX_TEXT_LENGTH} characters long.`);
+      setValidationMessage(`Tekst nie może przekraczać ${MAX_TEXT_LENGTH} znaków.`);
       setIsTextValid(false);
     } else {
       setValidationMessage(null);
@@ -77,7 +77,7 @@ const AIFlashcardGenerator: React.FC = () => {
 
     try {
       const command: AIGenerateFlashcardsCommand = { text: sourceText };
-      toast.loading("Generating suggestions...");
+      toast.loading("Generowanie propozycji...");
       const response = await fetch("/api/ai/generate-flashcards", {
         method: "POST",
         headers: {
@@ -88,7 +88,7 @@ const AIFlashcardGenerator: React.FC = () => {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to generate suggestions");
+        throw new Error(errorData.message || "Nie udało się wygenerować propozycji");
       }
 
       const data: AIGenerateFlashcardsResponseDto = await response.json();
@@ -106,10 +106,10 @@ const AIFlashcardGenerator: React.FC = () => {
       );
       setSuggestions(vms);
       setGenerationMetadata(data.metadata);
-      toast.success("Suggestions generated successfully!");
+      toast.success("Propozycje wygenerowane pomyślnie!");
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
-      toast.error(`Error generating suggestions: ${errorMessage}`);
+      const errorMessage = error instanceof Error ? error.message : "Wystąpił nieznany błąd";
+      toast.error(`Błąd podczas generowania propozycji: ${errorMessage}`);
     } finally {
       toast.dismiss();
       setIsLoadingSuggestions(false);
@@ -118,7 +118,7 @@ const AIFlashcardGenerator: React.FC = () => {
 
   const handleAccept = useCallback((id: string) => {
     setSuggestions((prev) => prev.map((s) => (s.id === id ? { ...s, isAccepted: true } : s)));
-    toast.success("Suggestion accepted!");
+    toast.success("Propozycja zaakceptowana!");
   }, []);
 
   const handleUnaccept = useCallback((id: string) => {
@@ -134,7 +134,7 @@ const AIFlashcardGenerator: React.FC = () => {
           : s
       )
     );
-    toast.info("Suggestion unaccepted. Content reverted to original suggestion.");
+    toast.info("Propozycja odrzucona. Treść przywrócona do oryginalnej sugestii.");
   }, []);
 
   const handleReject = useCallback((id: string) => {
@@ -146,7 +146,7 @@ const AIFlashcardGenerator: React.FC = () => {
     if (rejectingFlashcardId) {
       setSuggestions((prev) => prev.filter((s) => s.id !== rejectingFlashcardId));
       setRejectingFlashcardId(null);
-      toast.success("Suggestion rejected.");
+      toast.success("Propozycja odrzucona.");
     }
     setShowRejectConfirmationDialog(false);
   }, [rejectingFlashcardId]);
@@ -177,7 +177,7 @@ const AIFlashcardGenerator: React.FC = () => {
     );
     setIsEditDialogOpen(false);
     setEditingFlashcard(null);
-    toast.success("Flashcard updated and accepted!");
+    toast.success("Fiszka zaktualizowana i zaakceptowana!");
   }, []);
 
   const handleSaveSet = useCallback(
@@ -185,7 +185,7 @@ const AIFlashcardGenerator: React.FC = () => {
       setIsSavingSet(true);
       setApiErrorForSaveDialog(null);
       toast.dismiss();
-      toast.loading("Saving flashcard set...");
+      toast.loading("Zapisywanie zestawu fiszek...");
 
       // Krok 1: Tworzenie zestawu fiszek
       const setCommand: CreateFlashcardSetCommand = { name: setName };
@@ -206,7 +206,7 @@ const AIFlashcardGenerator: React.FC = () => {
 
         if (!setResponse.ok) {
           const errorData = await setResponse.json();
-          let specificMessage = "Failed to create flashcard set.";
+          let specificMessage = "Nie udało się utworzyć zestawu fiszek.";
           if (errorData && errorData.message) {
             specificMessage = errorData.message;
             if (errorData.errors && typeof errorData.errors === "object") {
@@ -223,17 +223,17 @@ const AIFlashcardGenerator: React.FC = () => {
         // Krok 2: Dodawanie fiszek do zestawu (Batch Create)
         if (!setId) {
           // Should not happen if previous step was successful
-          throw new Error("Set ID not available for batch creating flashcards.");
+          throw new Error("ID zestawu nie jest dostępne do wsadowego tworzenia fiszek.");
         }
 
         let flashcardsToCreate: CreateFlashcardCommand[] = [];
         const filteredSuggestions = saveMode === "accepted" ? suggestions.filter((s) => s.isAccepted) : suggestions; // Assuming 'all' means all currently in the suggestions list
 
         if (filteredSuggestions.length === 0 && saveMode === "accepted") {
-          console.log("No flashcards accepted to save. Only set created.");
+          console.log("Brak zaakceptowanych fiszek do zapisania. Utworzono tylko zestaw.");
           // Proceed to success steps as the set is created, but no flashcards to add for 'accepted' mode
         } else if (filteredSuggestions.length === 0 && saveMode === "all") {
-          console.log("No flashcards available to save. Only set created.");
+          console.log("Brak dostępnych fiszek do zapisania. Utworzono tylko zestaw.");
           // This case might also be considered a success if the user intended an empty set from AI gen
         } else {
           flashcardsToCreate = filteredSuggestions.map((vm) => ({
@@ -258,7 +258,7 @@ const AIFlashcardGenerator: React.FC = () => {
             // Log error, but proceed with set creation success for now as per plan (no rollback specified)
             console.error("Error batch creating flashcards:", errorData.message || errorData);
             setApiErrorForSaveDialog(
-              `Set "${setName}" created, but failed to add flashcards: ${errorData.message || "Unknown error"}`
+              `Zestaw "${setName}" utworzony, ale nie udało się dodać fiszek: ${errorData.message || "Unknown error"}`
             );
             // Do not throw here, allow success flow for set creation
           } else {
@@ -267,7 +267,7 @@ const AIFlashcardGenerator: React.FC = () => {
             if (batchResult.errors && batchResult.errors.length > 0) {
               console.warn("Some flashcards failed to create:", batchResult.errors);
               setApiErrorForSaveDialog(
-                `Set "${setName}" created. Some flashcards had issues: ${batchResult.errors.map((e) => e.error_message).join("; ")}`
+                `Zestaw "${setName}" utworzony. Niektóre fiszki miały problemy: ${batchResult.errors.map((e) => e.error_message).join("; ")}`
               );
               // Still a partial success for the set itself
             }
@@ -276,7 +276,7 @@ const AIFlashcardGenerator: React.FC = () => {
 
         // Sukces obu kroków (lub tylko kroku 1 jeśli nie było co dodawać)
         toast.success(
-          `Flashcard set "${newSet.name}" and all ${flashcardsToCreate.length} flashcards saved successfully!`
+          `Zestaw fiszek "${newSet.name}" i wszystkie ${flashcardsToCreate.length} fiszki zapisane pomyślnie!`
         );
         setSourceText("");
         setSuggestions([]);
@@ -285,7 +285,7 @@ const AIFlashcardGenerator: React.FC = () => {
         setSaveMode(null);
         console.log("TODO: Redirect to /dashboard");
       } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : "An unknown error occurred while saving the set.";
+        const errorMessage = error instanceof Error ? error.message : "Wystąpił nieznany błąd podczas zapisywania zestawu.";
         setApiErrorForSaveDialog(errorMessage);
         toast.error(errorMessage);
         console.error("Error saving set process:", error);
@@ -316,12 +316,12 @@ const AIFlashcardGenerator: React.FC = () => {
       <Toaster richColors position="top-right" />
 
       <div className="absolute top-4 left-4 md:top-6 md:left-6 lg:top-8 lg:left-8 z-10">
-        <Button variant="outline" size="icon" onClick={handleGoBack} aria-label="Go back to dashboard">
+        <Button variant="outline" size="icon" onClick={handleGoBack} aria-label="Wróć do panelu">
           <ArrowLeftIcon className="h-5 w-5" />
         </Button>
       </div>
 
-      <h1 className="text-3xl font-bold text-center mb-8 pt-10 md:pt-0">AI Flashcard Generator</h1>
+      <h1 className="text-3xl font-bold text-center mb-8 pt-10 md:pt-0">Generator Fiszke AI</h1>
 
       <SourceTextInput
         sourceText={sourceText}
@@ -334,22 +334,22 @@ const AIFlashcardGenerator: React.FC = () => {
 
       <div className="flex justify-center">
         <Button onClick={handleGenerateSuggestions} disabled={!isTextValid || isLoadingSuggestions} size="lg">
-          {isLoadingSuggestions ? "Generating..." : "Generate Flashcards"}
+          {isLoadingSuggestions ? "Generowanie..." : "Generuj Fiszki"}
         </Button>
       </div>
 
       {suggestions.length > 0 && (
         <div className="mt-8">
-          <h2 className="text-2xl font-semibold mb-4 text-center">Suggested Flashcards</h2>
+          <h2 className="text-2xl font-semibold mb-4 text-center">Sugerowane Fiszki</h2>
           {generationMetadata && (
             <div className="text-sm text-muted-foreground text-center mb-4 space-y-1">
               <p>
-                Model: {generationMetadata.model_used}, Source Hash:{" "}
+                Model: {generationMetadata.model_used}, Hash źródła:{" "}
                 {generationMetadata.source_text_hash.substring(0, 8)}...
               </p>
-              <p>Generation Time: {(generationMetadata.generation_duration_ms / 1000).toFixed(2)}s</p>
+              <p>Czas generowania: {(generationMetadata.generation_duration_ms / 1000).toFixed(2)}s</p>
               <p>
-                Truncated: {generationMetadata.truncated_count}, Rejected: {generationMetadata.rejected_count}
+                Skrócone: {generationMetadata.truncated_count}, Odrzucone: {generationMetadata.rejected_count}
               </p>
             </div>
           )}
@@ -366,7 +366,7 @@ const AIFlashcardGenerator: React.FC = () => {
               disabled={isSavingSet || suggestions.filter((s) => s.isAccepted).length === 0}
               size="lg"
             >
-              Save Accepted ({suggestions.filter((s) => s.isAccepted).length})
+              Zapisz Zaakceptowane ({suggestions.filter((s) => s.isAccepted).length})
             </Button>
             <Button
               onClick={handleSaveAll}
@@ -374,7 +374,7 @@ const AIFlashcardGenerator: React.FC = () => {
               size="lg"
               variant="outline"
             >
-              Save All ({suggestions.length})
+              Zapisz Wszystkie ({suggestions.length})
             </Button>
           </div>
         </div>
@@ -386,13 +386,13 @@ const AIFlashcardGenerator: React.FC = () => {
         isTextValid &&
         !generationMetadata && (
           <div className="text-center text-muted-foreground mt-8">
-            <p>Click {'"Generate Flashcards"'} to see suggestions.</p>
+            <p>Kliknij {"'Generuj Fiszki'"}, aby zobaczyć propozycje.</p>
           </div>
         )}
 
       {suggestions.length === 0 && !isLoadingSuggestions && generationMetadata && (
         <div className="text-center text-muted-foreground mt-8">
-          <p>No suggestions found for the provided text. Try modifying your input or generating again.</p>
+          <p>Nie znaleziono propozycji dla podanego tekstu. Spróbuj zmodyfikować tekst wejściowy lub wygenerować ponownie.</p>
         </div>
       )}
 

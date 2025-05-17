@@ -8,24 +8,24 @@ if (!Astro.locals.user) {
   return Astro.redirect("/login");
 }
 
-const userName = Astro.locals.user?.email?.split('@')[0] || 'Użytkowniku';
+const userName = Astro.locals.user?.email?.split("@")[0] || "Użytkowniku";
 
 const navigationItems = [
   {
     title: "Generuj fiszki z AI",
     href: "/generate-ai",
-    description: "Automatycznie twórz zestawy fiszek na podstawie Twoich materiałów."
+    description: "Automatycznie twórz zestawy fiszek na podstawie Twoich materiałów.",
   },
   {
     title: "Stwórz fiszki manualnie",
     href: "/create-manual",
-    description: "Pełna kontrola nad procesem tworzenia Twoich fiszek."
+    description: "Pełna kontrola nad procesem tworzenia Twoich fiszek.",
   },
   {
     title: "Moje zestawy fiszek",
     href: "/my-flashcards",
-    description: "Przeglądaj i zarządzaj swoimi kolekcjami fiszek."
-  }
+    description: "Przeglądaj i zarządzaj swoimi kolekcjami fiszek.",
+  },
 ];
 ---
 
@@ -41,18 +41,15 @@ const navigationItems = [
     </header>
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {navigationItems.map(item => (
-        <NavigationItem
-          client:load
-          title={item.title}
-          href={item.href}
-          description={item.description}
-        />
-      ))}
+      {
+        navigationItems.map((item) => (
+          <NavigationItem client:load title={item.title} href={item.href} description={item.description} />
+        ))
+      }
     </div>
   </main>
 </Layout>
 
 <style>
   /* Można dodać specyficzne style dla Dashboard tutaj, jeśli Tailwind nie wystarcza */
-</style> 
+</style>

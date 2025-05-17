@@ -1,0 +1,15 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import CreateManualView from "@/components/react/CreateManualView"; // Placeholder, will be created next
+
+// Route protection: Redirect to login if user is not authenticated
+if (!Astro.locals.user) {
+  return Astro.redirect("/login", 307);
+}
+---
+
+<Layout title="Stwórz Fiszki Manualnie | 10xCards">
+  <main class="container mx-auto px-4 py-8">
+    <CreateManualView client:load />
+  </main>
+</Layout>

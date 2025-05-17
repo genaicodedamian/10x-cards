@@ -1,9 +1,13 @@
-import type { APIContext } from 'astro';
-import { BatchCreateFlashcardsCommandSchema, SetIdParamSchema } from '../../../../../lib/schemas/flashcardSchemas';
-import type { BatchCreateFlashcardsCommand, BatchCreateFlashcardsResponseDto } from '../../../../../types';
-import { flashcardService, FlashcardSetNotFoundError, FlashcardBatchCreationError } from '../../../../../lib/services/flashcardService'; // Ensure service and custom errors are imported
-import type { SupabaseClient } from '../../../../../db/supabase.client';
-import { DEFAULT_USER_ID } from '../../../../../db/supabase.client';
+import type { APIContext } from "astro";
+import { BatchCreateFlashcardsCommandSchema, SetIdParamSchema } from "../../../../../lib/schemas/flashcardSchemas";
+import type { BatchCreateFlashcardsCommand, BatchCreateFlashcardsResponseDto } from "../../../../../types";
+import {
+  flashcardService,
+  FlashcardSetNotFoundError,
+  FlashcardBatchCreationError,
+} from "../../../../../lib/services/flashcardService";
+import type { SupabaseServerClient as SupabaseClient } from "../../../../../db/supabase.client";
+import { DEFAULT_USER_ID } from "../../../../../db/supabase.client";
 
 export const prerender = false;
 
@@ -15,10 +19,13 @@ export async function POST(context: APIContext): Promise<Response> {
   // 1. Validate setId path parameter
   const setIdValidation = SetIdParamSchema.safeParse({ setId: params.setId });
   if (!setIdValidation.success) {
-    return new Response(JSON.stringify({
-      message: "Validation failed.",
-      errors: setIdValidation.error.flatten().fieldErrors
-    }), { status: 400, headers: { 'Content-Type': 'application/json' } });
+    return new Response(
+      JSON.stringify({
+        message: "Validation failed.",
+        errors: setIdValidation.error.flatten().fieldErrors,
+      }),
+      { status: 400, headers: { "Content-Type": "application/json" } }
+    );
   }
   const setId = setIdValidation.data.setId;
 
@@ -28,16 +35,20 @@ export async function POST(context: APIContext): Promise<Response> {
     const body = await request.json();
     const bodyValidation = BatchCreateFlashcardsCommandSchema.safeParse(body);
     if (!bodyValidation.success) {
-      return new Response(JSON.stringify({
-        message: "Validation failed.",
-        errors: bodyValidation.error.flatten().fieldErrors
-      }), { status: 400, headers: { 'Content-Type': 'application/json' } });
+      return new Response(
+        JSON.stringify({
+          message: "Validation failed.",
+          errors: bodyValidation.error.flatten().fieldErrors,
+        }),
+        { status: 400, headers: { "Content-Type": "application/json" } }
+      );
     }
     command = bodyValidation.data as BatchCreateFlashcardsCommand; // Cast after successful validation
-  } catch (error) {
+  } catch (parseError: unknown) {
+    console.error("Invalid JSON format in request body:", parseError);
     return new Response(JSON.stringify({ message: "Invalid JSON format in request body." }), {
       status: 400,
-      headers: { 'Content-Type': 'application/json' }
+      headers: { "Content-Type": "application/json" },
     });
   }
 
@@ -47,7 +58,7 @@ export async function POST(context: APIContext): Promise<Response> {
     console.error("Supabase client missing from context.locals");
     return new Response(JSON.stringify({ message: "Internal Server Error: Supabase client missing." }), {
       status: 500,
-      headers: { 'Content-Type': 'application/json' }
+      headers: { "Content-Type": "application/json" },
     });
   }
 
@@ -59,32 +70,38 @@ export async function POST(context: APIContext): Promise<Response> {
 
   try {
     // 4. Call FlashcardService
-    const result: BatchCreateFlashcardsResponseDto = await flashcardService.batchCreateFlashcards(setId, userId, command, supabase);
-    
+    const result: BatchCreateFlashcardsResponseDto = await flashcardService.batchCreateFlashcards(
+      setId,
+      userId,
+      command,
+      supabase
+    );
+
     return new Response(JSON.stringify(result), {
       status: 201, // Created
-      headers: { 'Content-Type': 'application/json' }
+      headers: { "Content-Type": "application/json" },
     });
-
-  } catch (error: any) {
+  } catch (error: unknown) {
     if (error instanceof FlashcardSetNotFoundError) {
       return new Response(JSON.stringify({ message: error.message }), {
         status: 404, // Not Found
-        headers: { 'Content-Type': 'application/json' }
+        headers: { "Content-Type": "application/json" },
       });
     } else if (error instanceof FlashcardBatchCreationError) {
       // This will catch errors from RPC call failure or other specific batch errors from the service
-      return new Response(JSON.stringify({ message: error.message || "Failed to batch create flashcards due to a server error." }), {
+      const message = error.message || "Failed to batch create flashcards due to a server error.";
+      return new Response(JSON.stringify({ message }), {
         status: 500, // Internal Server Error
-        headers: { 'Content-Type': 'application/json' }
+        headers: { "Content-Type": "application/json" },
       });
     } else {
       // Generic unexpected error
       console.error("Unexpected error in API handler:", error);
-      return new Response(JSON.stringify({ message: "An unexpected internal server error occurred." }), {
+      const message = error instanceof Error ? error.message : "An unexpected internal server error occurred.";
+      return new Response(JSON.stringify({ message }), {
         status: 500,
-        headers: { 'Content-Type': 'application/json' }
+        headers: { "Content-Type": "application/json" },
       });
     }
   }
-} 
+}

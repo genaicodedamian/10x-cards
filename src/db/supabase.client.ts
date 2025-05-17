@@ -43,3 +43,6 @@ export const createSupabaseServerInstance = (context: { headers: Headers; cookie
 
 // Export typu dla klienta serwerowego, jeśli potrzebne gdzie indziej
 export type SupabaseServerClient = ReturnType<typeof createSupabaseServerInstance>;
+
+// Default User ID for development/testing fallback as per API plan
+export const DEFAULT_USER_ID = "00000000-0000-0000-0000-000000000000";

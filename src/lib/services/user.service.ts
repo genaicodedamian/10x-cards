@@ -1,6 +1,6 @@
-import { createClient } from '@supabase/supabase-js';
-import type { Database } from '@/db/database.types';
-import type { SupabaseClient } from '@/db/supabase.client';
+import { createClient } from "@supabase/supabase-js";
+import type { Database } from "@/db/database.types";
+import type { SupabaseClient } from "@/db/supabase.client";
 
 // No need to import SupabaseClient from '@/db/supabase.client' for the admin client
 
@@ -17,8 +17,8 @@ export async function deleteUserAccount(userId: string): Promise<void> {
   const supabaseServiceRoleKey = import.meta.env.SUPABASE_SERVICE_ROLE_KEY;
 
   if (!supabaseUrl || !supabaseServiceRoleKey) {
-    console.error('Supabase URL or Service Role Key is not configured.');
-    throw new Error('Server configuration error: Supabase credentials missing.');
+    console.error("Supabase URL or Service Role Key is not configured.");
+    throw new Error("Server configuration error: Supabase credentials missing.");
   }
 
   // Create a new Supabase client with admin privileges, typed with the Database schema
@@ -39,4 +39,4 @@ export async function deleteUserAccount(userId: string): Promise<void> {
   }
 
   console.log(`User ${userId} deleted successfully.`);
-} 
+}

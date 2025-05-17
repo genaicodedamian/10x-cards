@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useId } from 'react';
-import { Button } from '@/components/ui/button';
+import React, { useState, useEffect, useId } from "react";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -7,9 +7,9 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 interface SaveSetDialogProps {
   isOpen: boolean;
@@ -21,20 +21,14 @@ interface SaveSetDialogProps {
 
 const MAX_SET_NAME_LENGTH = 100;
 
-const SaveSetDialog: React.FC<SaveSetDialogProps> = ({
-  isOpen,
-  onClose,
-  onSave,
-  isSaving,
-  errorSaving,
-}) => {
-  const [setName, setSetName] = useState('');
+const SaveSetDialog: React.FC<SaveSetDialogProps> = ({ isOpen, onClose, onSave, isSaving, errorSaving }) => {
+  const [setName, setSetName] = useState("");
   const [validationError, setValidationError] = useState<string | null>(null);
   const nameInputId = useId();
 
   useEffect(() => {
     if (isOpen) {
-      setSetName('');
+      setSetName("");
       setValidationError(null);
     }
   }, [isOpen]);
@@ -47,15 +41,15 @@ const SaveSetDialog: React.FC<SaveSetDialogProps> = ({
 
   const validateName = (name: string): boolean => {
     if (!name.trim()) {
-      setValidationError('Set name is required.');
+      setValidationError("Nazwa zestawu jest wymagana.");
       return false;
     }
     if (name.length > MAX_SET_NAME_LENGTH) {
-      setValidationError(`Set name cannot exceed ${MAX_SET_NAME_LENGTH} characters.`);
+      setValidationError(`Nazwa zestawu nie może przekraczać ${MAX_SET_NAME_LENGTH} znaków.`);
       return false;
     }
     if (!errorSaving) {
-        setValidationError(null);
+      setValidationError(null);
     }
     return true;
   };
@@ -70,12 +64,12 @@ const SaveSetDialog: React.FC<SaveSetDialogProps> = ({
     const newName = e.target.value;
     setSetName(newName);
     if (validationError && !errorSaving) {
-        validateName(newName);
+      validateName(newName);
     } else if (errorSaving && validationError) {
-        setValidationError(null);
+      setValidationError(null);
     }
   };
-  
+
   const handleDialogStateChange = (open: boolean) => {
     if (!open) {
       onClose();
@@ -86,24 +80,24 @@ const SaveSetDialog: React.FC<SaveSetDialogProps> = ({
     <Dialog open={isOpen} onOpenChange={handleDialogStateChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Save New Flashcard Set</DialogTitle>
+          <DialogTitle>Zapisz Nowy Zestaw Fiszke</DialogTitle>
           <DialogDescription>
-            Enter a name for your new set of flashcards. This will help you find it later.
+            Wprowadź nazwę dla nowego zestawu fiszek. Pomoże Ci go później znaleźć.
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor={nameInputId} className="text-right">
-              Set Name
+              Nazwa Zestawu
             </Label>
             <Input
               id={nameInputId}
               value={setName}
               onChange={handleNameChange}
-              placeholder="e.g., Chapter 5 Vocabulary"
+              placeholder="np. Słówka z Rozdziału 5"
               className="col-span-3"
               disabled={isSaving}
-              aria-describedby={validationError ? 'error-message-save-set' : undefined}
+              aria-describedby={validationError ? "error-message-save-set" : undefined}
             />
           </div>
           {validationError && (
@@ -113,9 +107,11 @@ const SaveSetDialog: React.FC<SaveSetDialogProps> = ({
           )}
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={onClose} disabled={isSaving}>Cancel</Button>
-          <Button onClick={handleSave} disabled={isSaving || !setName.trim() || setName.length > MAX_SET_NAME_LENGTH } >
-            {isSaving ? 'Saving...' : 'Save Set'}
+          <Button variant="outline" onClick={onClose} disabled={isSaving}>
+            Anuluj
+          </Button>
+          <Button onClick={handleSave} disabled={isSaving || !setName.trim() || setName.length > MAX_SET_NAME_LENGTH}>
+            {isSaving ? "Zapisywanie..." : "Zapisz Zestaw"}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -123,4 +119,4 @@ const SaveSetDialog: React.FC<SaveSetDialogProps> = ({
   );
 };
 
-export default SaveSetDialog; 
+export default SaveSetDialog;

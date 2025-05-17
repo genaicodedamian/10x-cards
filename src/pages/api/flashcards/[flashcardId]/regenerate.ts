@@ -3,13 +3,15 @@ export const prerender = false;
 import type { APIContext } from "astro";
 import { z } from "zod";
 import { DEFAULT_USER_ID, supabaseClient } from "@/db/supabase.client";
-import {
-  FlashcardIdPathParamsSchema,
-  RegenerateFlashcardCommandSchema,
-} from "@/lib/schemas/flashcardSchemas";
+import { FlashcardIdPathParamsSchema, RegenerateFlashcardCommandSchema } from "@/lib/schemas/flashcardSchemas";
 // Import for RegenerateFlashcardCommand type, though it's just {} it's good for clarity
 import type { RegenerateFlashcardCommand } from "@/types";
-import { flashcardService, FlashcardNotFoundError, FlashcardNotAIGeneratedError, FlashcardRegenerationFailedError } from "@/lib/services/flashcardService";
+import {
+  flashcardService,
+  FlashcardNotFoundError,
+  FlashcardNotAIGeneratedError,
+  FlashcardRegenerationFailedError,
+} from "@/lib/services/flashcardService";
 import { MockLLMError } from "@/lib/services/aiMockService";
 
 export async function POST(context: APIContext): Promise<Response> {
@@ -43,13 +45,10 @@ export async function POST(context: APIContext): Promise<Response> {
       requestBody = {};
     }
   } catch (e) {
-    return new Response(
-      JSON.stringify({ message: "Invalid JSON in request body." }),
-      {
-        status: 400,
-        headers: { "Content-Type": "application/json" },
-      }
-    );
+    return new Response(JSON.stringify({ message: "Invalid JSON in request body." }), {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 
   const bodyValidationResult = RegenerateFlashcardCommandSchema.safeParse(requestBody);
@@ -79,7 +78,6 @@ export async function POST(context: APIContext): Promise<Response> {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });
-
   } catch (error) {
     if (error instanceof FlashcardNotFoundError) {
       return new Response(JSON.stringify({ error: error.message }), {
@@ -88,7 +86,8 @@ export async function POST(context: APIContext): Promise<Response> {
       });
     }
     if (error instanceof FlashcardNotAIGeneratedError) {
-      return new Response(JSON.stringify({ error: error.message }), { // Message from error is descriptive enough
+      return new Response(JSON.stringify({ error: error.message }), {
+        // Message from error is descriptive enough
         status: 400,
         headers: { "Content-Type": "application/json" },
       });
@@ -115,32 +114,23 @@ export async function POST(context: APIContext): Promise<Response> {
           );
         }
         // Default for other MockLLMError (like statusCode 500) or if statusCode is not set as expected
-        return new Response(
-          JSON.stringify({ error: "Internal Server Error. Failed to regenerate flashcard." }),
-          {
-            status: 500,
-            headers: { "Content-Type": "application/json" },
-          }
-        );
-      }
-      // For FlashcardRegenerationFailedError not caused by a known MockLLMError (e.g. DB update error after LLM success)
-      return new Response(
-        JSON.stringify({ error: "Internal Server Error. Failed to regenerate flashcard." }),
-        {
+        return new Response(JSON.stringify({ error: "Internal Server Error. Failed to regenerate flashcard." }), {
           status: 500,
           headers: { "Content-Type": "application/json" },
-        }
-      );
+        });
+      }
+      // For FlashcardRegenerationFailedError not caused by a known MockLLMError (e.g. DB update error after LLM success)
+      return new Response(JSON.stringify({ error: "Internal Server Error. Failed to regenerate flashcard." }), {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      });
     }
 
     // Fallback for any other unexpected errors
     console.error("Unexpected error in POST /api/flashcards/[flashcardId]/regenerate:", error);
-    return new Response(
-      JSON.stringify({ error: "An internal server error occurred." }),
-      {
-        status: 500,
-        headers: { "Content-Type": "application/json" },
-      }
-    );
+    return new Response(JSON.stringify({ error: "An internal server error occurred." }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
   }
-} 
+}

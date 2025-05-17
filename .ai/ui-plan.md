@@ -138,23 +138,27 @@ Interfejs będzie responsywny, wykorzystując Tailwind CSS i predefiniowane komp
     *   Dostępność: Wszystkie interaktywne elementy dostępne z klawiatury. Ikony-przyciski z `aria-label`. Modale poprawnie zarządzające focusem.
     *   Bezpieczeństwo: Dane przechowywane tymczasowo w stanie klienta przed wysłaniem do API.
 
-### 6. Widok Moje Zestawy Fiszki
-*   **Nazwa widoku**: Moje Zestawy Fiszki
+### 6. Widok Moje Zestawy Fiszek
+*   **Nazwa widoku**: Moje Fiszki
 *   **Ścieżka widoku**: `/my-flashcards`
-*   **Główny cel**: Wyświetlenie listy wszystkich zestawów fiszek użytkownika, umożliwienie rozpoczęcia nauki lub usunięcia zestawu.
-*   **Kluczowe informacje do wyświetlenia**: Lista zestawów z podstawowymi informacjami i akcjami.
+*   **Główny cel**: Wyświetlenie listy wszystkich zestawów fiszek użytkownika, umożliwienie rozpoczęcia nauki (oraz w przyszłości usunięcia zestawu).
+*   **Kluczowe informacje do wyświetlenia**: Lista zestawów zawierająca: nazwę zestawu, ilość fiszek, status pochodzenia ('ai_generated', 'ai_generated_edited', 'manual'), datę ostatniej sesji nauki (jeśli była), oraz akcje.
 *   **Kluczowe komponenty widoku**:
     *   Lista lub siatka zestawów (np. każda pozycja jako `Card` z Shadcn/ui).
     *   Dla każdego zestawu:
         *   `CardTitle` (Shadcn/ui): Nazwa zestawu.
-        *   `CardDescription` lub tekst: Liczba fiszek w zestawie, data utworzenia/modyfikacji.
-        *   `Button` (Shadcn/ui): "Rozpocznij naukę".
-        *   `Button` (Shadcn/ui, wariant ikony): "Usuń zestaw" (ikona 🗑️).
-    *   `AlertDialog` (Shadcn/ui): Modal potwierdzający usunięcie zestawu.
+        *   `CardDescription` lub tekst:
+            *   Ilość fiszek w zestawie.
+            *   Status pochodzenia zestawu (np. "AI Generated", "AI Generated (Edited)", "Manual").
+            *   Data ostatniej sesji nauki (np. "Ostatnia nauka: DD.MM.RRRR" lub "Nigdy nie uczono").
+        *   `Button` (Shadcn/ui): "Rozpocznij naukę" (prowadzący do `/study-session/:setId`).
+        *   `Button` (Shadcn/ui, wariant ikony, **wyszarzony**): "Usuń zestaw" (ikona 🗑️).
+            *   `Tooltip` (Shadcn/ui) na przycisku "Usuń zestaw": Wyświetla "Funkcja dostępna wkrótce" lub "Coming soon...".
+    *   (W przyszłości) `AlertDialog` (Shadcn/ui): Modal potwierdzający usunięcie zestawu (wyświetlany po kliknięciu aktywnego przycisku "Usuń zestaw").
     *   Komunikat: "Nie masz jeszcze żadnych zestawów..." jeśli lista jest pusta.
 *   **UX, dostępność i względy bezpieczeństwa**:
-    *   UX: Przejrzysta lista z łatwym dostępem do akcji. Potwierdzenie krytycznej akcji (usuwanie).
-    *   Dostępność: Elementy listy i przyciski dostępne z klawiatury, poprawnie opisane.
+    *   UX: Przejrzysta lista z łatwym dostępem do akcji. Wyraźne wskazanie tymczasowo niedostępnej funkcji usuwania.
+    *   Dostępność: Elementy listy i przyciski dostępne z klawiatury, poprawnie opisane. Wyszarzony przycisk odpowiednio oznaczony dla czytników ekranu.
     *   Bezpieczeństwo: Wyświetla tylko zestawy zalogowanego użytkownika (RLS w bazie).
 
 ### 7. Widok Sesji Nauki
@@ -165,10 +169,10 @@ Interfejs będzie responsywny, wykorzystując Tailwind CSS i predefiniowane komp
 *   **Kluczowe komponenty widoku**:
     *   Duży, centralny element (np. `Card` z Shadcn/ui) do wyświetlania aktualnej fiszki:
         *   Dynamiczne wyświetlanie przodu fiszki.
-        *   Po kliknięciu (lub innej interakcji) – odkrywanie tyłu fiszki.
-    *   Dwa `Button` (Shadcn/ui) pod fiszką (po odkryciu tyłu):
-        *   Zielony przycisk: "Umiem" / "Poprawnie".
-        *   Czerwony przycisk: "Nie umiem" / "Powtórz".
+        *   Po kliknięciu fiszka obraca się (szybka animacja obrócenia), a użytkownik widzi tył fiszki.
+    *   Dwa `Button` (Shadcn/ui) pod fiszką (po odkryciu tyłu), najlepiej jako ikony:
+        *   Zielony przycisk/ikona 'check-sign' (np. ✓): "Umiem" / "Poprawnie".
+        *   Czerwony przycisk/ikona 'krzyżyk' (np. ✗): "Nie umiem" / "Powtórz".
     *   Logika stanu fiszek w sesji (zarządzana w stanie komponentu React/Zustand):
         *   Początkowo wszystkie fiszki z zestawu są w puli "do nauczenia".
         *   Kliknięcie zielonego przycisku ("Umiem"): Fiszka jest uznawana za nauczoną w tej sesji i nie będzie więcej pokazywana.
@@ -176,10 +180,11 @@ Interfejs będzie responsywny, wykorzystując Tailwind CSS i predefiniowane komp
         *   Po przejściu wszystkich fiszek z początkowej puli "do nauczenia", jeśli pula "do powtórzenia" nie jest pusta, fiszki z puli "do powtórzenia" stają się nową pulą "do nauczenia", a pula "do powtórzenia" jest czyszczona. Proces się powtarza.
         *   Sesja kończy się, gdy wszystkie fiszki z pierwotnego zestawu zostaną oznaczone zielonym przyciskiem (tj. nie ma już kart w puli "do nauczenia" ani "do powtórzenia").
     *   Po zakończeniu sesji:
+        *   Aktualizacja daty ostatniej sesji nauki dla danego zestawu.
         *   Prosty tekstowy komunikat: "Gratulacje! Ukończyłeś naukę tego zestawu."
-        *   `Button` (Shadcn/ui): "Wróć do Dashboardu".
+        *   `Button` (Shadcn/ui): "Wróć do Listy Zestawów" (prowadzący do `/my-flashcards`) lub "Wróć do Dashboardu" (prowadzący do `/dashboard`).
 *   **UX, dostępność i względy bezpieczeństwa**:
-    *   UX: Skupienie na jednej fiszce naraz. Jasne przyciski akcji. Płynne przejścia między fiszkami. Brak możliwości przerwania sesji (zgodnie z decyzją MVP).
+    *   UX: Skupienie na jednej fiszce naraz. Jasne przyciski akcji. Płynne przejścia między fiszkami (animacja obrotu). Brak możliwości przerwania sesji (zgodnie z decyzją MVP).
     *   Dostępność: Czytelna czcionka. Przyciski dostępne z klawiatury i odpowiednio opisane. Interakcja odkrywania fiszki dostępna również z klawiatury.
     *   Bezpieczeństwo: Dostęp do fiszek tylko z wybranego zestawu należącego do użytkownika.
 

@@ -1,9 +1,9 @@
-import type { Database, Tables } from '@/db/database.types';
+import type { Database, Tables } from "@/db/database.types";
 // Use SupabaseClient from the local wrapper
-import type { SupabaseClient } from '@/db/supabase.client'; 
+import type { SupabaseClient } from "@/db/supabase.client";
 // Keep PostgrestError if it's used and not re-exported by the local SupabaseClient module
-import type { PostgrestError } from '@supabase/supabase-js';
-import type { CreateFlashcardSetCommand, FlashcardSetDto, PaginationInfoDto } from '../../types'; // Adjusted path
+import type { PostgrestError } from "@supabase/supabase-js";
+import type { CreateFlashcardSetCommand, FlashcardSetDto, PaginationInfoDto } from "../../types"; // Adjusted path
 
 /**
  * Service class for managing Flashcard Sets.
@@ -22,7 +22,7 @@ export class FlashcardSetService {
     command: CreateFlashcardSetCommand,
     supabase: SupabaseClient
   ): Promise<{ data: FlashcardSetDto | null; error: PostgrestError | null }> {
-    console.log('FlashcardSetService.createSet called with:', { userId, command });
+    console.log("FlashcardSetService.createSet called with:", { userId, command });
 
     const { name, source_text_hash, source_text_length, generation_duration_ms } = command;
 
@@ -39,14 +39,10 @@ export class FlashcardSetService {
       // created_at, updated_at will be set by DB
     };
 
-    const { data, error } = await supabase
-      .from('flashcard_sets')
-      .insert(insertData)
-      .select()
-      .single(); // .single() is used to get the inserted row back and ensures it's just one
+    const { data, error } = await supabase.from("flashcard_sets").insert(insertData).select().single(); // .single() is used to get the inserted row back and ensures it's just one
 
     if (error) {
-      console.error('Error creating flashcard set in service:', error);
+      console.error("Error creating flashcard set in service:", error);
       return { data: null, error };
     }
 
@@ -56,20 +52,20 @@ export class FlashcardSetService {
   async getFlashcardSets(
     supabase: SupabaseClient,
     userId: string,
-    params: { page: number; limit: number; sortBy: string; order: 'asc' | 'desc' }
+    params: { page: number; limit: number; sortBy: string; order: "asc" | "desc" }
   ): Promise<{ data: FlashcardSetDto[]; pagination: PaginationInfoDto; error?: PostgrestError | null }> {
     const offset = (params.page - 1) * params.limit;
 
     try {
       const { data, error, count } = await supabase
-        .from('flashcard_sets')
-        .select('*', { count: 'exact' })
-        .eq('user_id', userId)
-        .order(params.sortBy, { ascending: params.order === 'asc' })
+        .from("flashcard_sets")
+        .select("*", { count: "exact" })
+        .eq("user_id", userId)
+        .order(params.sortBy, { ascending: params.order === "asc" })
         .range(offset, offset + params.limit - 1);
 
       if (error) {
-        console.error('Error fetching flashcard sets:', error);
+        console.error("Error fetching flashcard sets:", error);
         return { data: [], pagination: this.getEmptyPagination(params.page, params.limit), error };
       }
 
@@ -85,12 +81,17 @@ export class FlashcardSetService {
 
       return { data: data || [], pagination, error: null };
     } catch (e) {
-      console.error('Unexpected error in getFlashcardSets:', e);
+      console.error("Unexpected error in getFlashcardSets:", e);
       const unknownError = e as Error;
       return {
         data: [],
         pagination: this.getEmptyPagination(params.page, params.limit),
-        error: { message: unknownError.message || 'An unexpected error occurred', details: '', hint: '', code: '500' } as PostgrestError,
+        error: {
+          message: unknownError.message || "An unexpected error occurred",
+          details: "",
+          hint: "",
+          code: "500",
+        } as PostgrestError,
       };
     }
   }
@@ -120,29 +121,35 @@ export class FlashcardSetService {
     userId: string,
     data: { name: string }
   ): Promise<FlashcardSetDto | null> {
-    console.log('FlashcardSetService.updateFlashcardSet called with:', { setId, userId, name: data.name });
+    console.log("FlashcardSetService.updateFlashcardSet called with:", { setId, userId, name: data.name });
 
     const { data: updatedSet, error } = await supabase
-      .from('flashcard_sets')
+      .from("flashcard_sets")
       .update({ name: data.name /* updated_at is managed by DB trigger */ })
-      .eq('id', setId)
-      .eq('user_id', userId) // Crucial for authorization at the query level
+      .eq("id", setId)
+      .eq("user_id", userId) // Crucial for authorization at the query level
       .select() // To return the updated record
       .single(); // Expect a single record or error/null
 
     if (error) {
-      if (error.code === '23505') { // PostgreSQL error code for unique violation
-        console.warn('Supabase error updating flashcard set - unique constraint violation:', { setId, userId, name: data.name, error });
-        throw new Error('DUPLICATE_SET_NAME'); // Specific error for handler to map to 400
+      if (error.code === "23505") {
+        // PostgreSQL error code for unique violation
+        console.warn("Supabase error updating flashcard set - unique constraint violation:", {
+          setId,
+          userId,
+          name: data.name,
+          error,
+        });
+        throw new Error("DUPLICATE_SET_NAME"); // Specific error for handler to map to 400
       }
-      console.error('Supabase error updating flashcard set:', { setId, userId, name: data.name, error });
+      console.error("Supabase error updating flashcard set:", { setId, userId, name: data.name, error });
       // Throw a generic error or a specific one that the handler can map to 500
-      throw new Error('DB_UPDATE_FAILED');
+      throw new Error("DB_UPDATE_FAILED");
     }
 
     if (!updatedSet) {
       // If .single() doesn't return data and there's no error, it means the row wasn't found (e.g., setId or userId didn't match)
-      console.log('Flashcard set not found for update or user does not own it:', { setId, userId });
+      console.log("Flashcard set not found for update or user does not own it:", { setId, userId });
       return null; // Handler will map this to 404
     }
 
@@ -153,4 +160,4 @@ export class FlashcardSetService {
 /**
  * Pre-initialized instance of the FlashcardSetService.
  */
-export const flashcardSetService = new FlashcardSetService(); 
+export const flashcardSetService = new FlashcardSetService();

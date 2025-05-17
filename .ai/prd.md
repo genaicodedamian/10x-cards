@@ -137,15 +137,36 @@ Kryteria akceptacji:
 - Użytkownik może dodać wiele fiszek do tymczasowej listy.
 - Po przygotowaniu fiszek, użytkownik klika przycisk "Zapisz zestaw fiszek", wprowadza nazwę dla nowego zestawu w modalu, a fiszki są zapisywane w bazie danych.
 
-ID: US-008
-Tytuł: Sesja nauki z algorytmem powtórek
-Opis: Jako zalogowany użytkownik chcę móc wybrać jeden z moich zapisanych zestawów fiszek i rozpocząć sesję nauki opartą na prostym algorytmie powtórek, aby efektywnie przyswajać materiał.
+ID: US-008A
+Tytuł: Widok listy zestawów fiszek i zarządzanie nimi
+Opis: Jako zalogowany użytkownik chcę mieć dostęp do ekranu `/my-flashcards`, gdzie mogę widzieć listę wszystkich moich zestawów fiszek, zarządzać nimi oraz inicjować sesje nauki.
 Kryteria akceptacji:
-- Z ekranu `/my-flashcards` (Moje zestawy fiszek) mogę wybrać zestaw i kliknąć "Rozpocznij naukę", co przenosi mnie na ekran `/study-session/:setId`.
-- Na ekranie sesji nauki wyświetlany jest przód fiszki. Po kliknięciu użytkownik widzi tył oraz przyciski "Umiem" (zielony) i "Nie umiem" (czerwony).
+- Na ekranie `/my-flashcards` wyświetlana jest lista wszystkich zestawów fiszek stworzonych przez użytkownika.
+- Dla każdego zestawu widoczna jest:
+    - Nazwa zestawu.
+    - Ilość fiszek w zestawie.
+    - Status pochodzenia zestawu: 'ai_generated', 'ai_generated_edited', lub 'manual'.
+    - Data ostatniej sesji nauki dla danego zestawu (jeśli była).
+- Przy każdym zestawie znajduje się opcja "Rozpocznij naukę", która przenosi użytkownika na ekran `/study-session/:setId` (gdzie `:setId` to identyfikator wybranego zestawu).
+- Przy każdym zestawie znajduje się opcja "Usuń zestaw".
+    - Opcja "Usuń zestaw" jest tymczasowo nieaktywna (wyszarzony przycisk).
+    - Po najechaniu kursorem na przycisk "Usuń zestaw" wyświetla się komunikat "Funkcja dostępna wkrótce" lub "Coming soon...".
+    - W przyszłości: Kliknięcie "Usuń zestaw" wyświetla `AlertDialog` z prośbą o potwierdzenie decyzji.
+    - W przyszłości: Po potwierdzeniu w `AlertDialog`, zestaw fiszek jest usuwany z bazy danych.
+
+ID: US-008B
+Tytuł: Sesja nauki z algorytmem powtórek
+Opis: Jako zalogowany użytkownik, po wybraniu zestawu fiszek, chcę rozpocząć sesję nauki na ekranie `/study-session/:setId` opartą na prostym algorytmie powtórek, aby efektywnie przyswajać materiał.
+Kryteria akceptacji:
+- Użytkownik jest przenoszony na ekran `/study-session/:setId` po kliknięciu "Rozpocznij naukę" na ekranie `/my-flashcards`.
+- Na ekranie sesji nauki wyświetlany jest przód fiszki.
+- Po kliknięciu fiszka się obraca (najlepiej z szybką animacją obrócenia), a użytkownik widzi tył fiszki.
+- Pod fiszką znajdują się przyciski oceny, np. "Umiem" (zielony) i "Nie umiem" (czerwony) - najlepiej reprezentowane jako ikonki 'check-sign' oraz 'krzyzyk'.
 - Fiszki oznaczone jako "Nie umiem" są powtarzane w tej samej sesji, aż wszystkie zostaną oznaczone jako "Umiem".
-- Po zakończeniu sesji (wszystkie fiszki "Umiem"), wyświetlany jest komunikat o ukończeniu i przycisk powrotu do Dashboardu.
+- Po zakończeniu sesji (wszystkie fiszki w danym podejściu ocenione jako "Umiem"), wyświetlany jest komunikat o ukończeniu sesji.
+- Po ukończeniu sesji, użytkownik widzi przycisk powrotu do listy zestawów (`/my-flashcards`) lub Dashboardu (`/dashboard`).
 - Użytkownik nie może opuścić sesji nauki przed jej ukończeniem.
+- Data ostatniej sesji nauki dla zestawu jest aktualizowana po zakończeniu sesji.
 
 ID: US-009
 Tytuł: Bezpieczny dostęp i autoryzacja

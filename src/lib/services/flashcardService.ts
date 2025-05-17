@@ -35,7 +35,10 @@ export class FlashcardNotAIGeneratedError extends Error {
 
 // Custom error for general failures during the regeneration process (e.g., LLM failure, DB update failure)
 export class FlashcardRegenerationFailedError extends Error {
-  constructor(message: string, public underlyingError?: unknown) {
+  constructor(
+    message: string,
+    public underlyingError?: unknown
+  ) {
     super(message);
     this.name = "FlashcardRegenerationFailedError";
   }
@@ -447,7 +450,8 @@ export const flashcardService = {
       .single();
 
     if (fetchError) {
-      if (fetchError.code === "PGRST116") { // PostgREST error code for "single()" returning 0 rows
+      if (fetchError.code === "PGRST116") {
+        // PostgREST error code for "single()" returning 0 rows
         throw new FlashcardNotFoundError(
           `Flashcard with ID ${flashcardId} not found or not accessible by user ${userId}.`
         );
@@ -501,14 +505,20 @@ export const flashcardService = {
             `Could not fetch flashcard_set details for logging LLM error for flashcard ${flashcardId}: ${setError.message}. Using placeholders.`
           );
         } else if (setDetails) {
-          if (setDetails.source_text_hash && setDetails.source_text_hash.length > 0) { // Basic check
+          if (setDetails.source_text_hash && setDetails.source_text_hash.length > 0) {
+            // Basic check
             sourceTextHashForLog = setDetails.source_text_hash;
           }
-          if (setDetails.source_text_length && setDetails.source_text_length >= 1000 && setDetails.source_text_length <= 10000) { // As per DB constraint
+          if (
+            setDetails.source_text_length &&
+            setDetails.source_text_length >= 1000 &&
+            setDetails.source_text_length <= 10000
+          ) {
+            // As per DB constraint
             sourceTextLengthForLog = setDetails.source_text_length;
           }
         }
-        
+
         const logEntry: TablesInsert<"generation_error_logs"> = {
           user_id: userId,
           model: llmError.modelUsed, // from MockLLMError
@@ -519,30 +529,28 @@ export const flashcardService = {
         };
 
         try {
-          const { error: logInsertError } = await supabaseInstance
-            .from("generation_error_logs")
-            .insert(logEntry);
+          const { error: logInsertError } = await supabaseInstance.from("generation_error_logs").insert(logEntry);
           if (logInsertError) {
             console.error(
               `Failed to insert LLM error log for flashcard ${flashcardId}: ${logInsertError.message}`,
               logEntry
             );
             // Throw original LLM error, but wrap it to indicate logging also failed
-             throw new FlashcardRegenerationFailedError(
+            throw new FlashcardRegenerationFailedError(
               `Mock LLM service failed and logging the error also failed: ${llmError.message} (Log Error: ${logInsertError.message})`,
               llmError
-            ); 
+            );
           }
         } catch (dbLogErr) {
-           console.error(
-              `Unexpected error during LLM error log insertion for flashcard ${flashcardId}: ${ (dbLogErr instanceof Error) ? dbLogErr.message : String(dbLogErr) }`,
-              logEntry
-            );
-            // Throw original LLM error, but wrap it to indicate logging also failed
-             throw new FlashcardRegenerationFailedError(
-              `Mock LLM service failed and logging the error also unexpectedly failed: ${llmError.message}`,
-              llmError
-            ); 
+          console.error(
+            `Unexpected error during LLM error log insertion for flashcard ${flashcardId}: ${dbLogErr instanceof Error ? dbLogErr.message : String(dbLogErr)}`,
+            logEntry
+          );
+          // Throw original LLM error, but wrap it to indicate logging also failed
+          throw new FlashcardRegenerationFailedError(
+            `Mock LLM service failed and logging the error also unexpectedly failed: ${llmError.message}`,
+            llmError
+          );
         }
 
         // Re-throw a specific error that the API route can map to a status code
@@ -566,7 +574,9 @@ export const flashcardService = {
     if (rawNewFront.length > MAX_FRONT_LENGTH) {
       finalNewFront = rawNewFront.substring(0, MAX_FRONT_LENGTH - 3) + "...";
       // TODO: Potentially log this truncation or inform the user if necessary in a real scenario
-      console.warn(`Truncated regenerated front content for flashcard ${flashcardId} as it exceeded ${MAX_FRONT_LENGTH} chars.`);
+      console.warn(
+        `Truncated regenerated front content for flashcard ${flashcardId} as it exceeded ${MAX_FRONT_LENGTH} chars.`
+      );
     }
 
     let finalNewBack = rawNewBack;
@@ -574,7 +584,9 @@ export const flashcardService = {
     if (rawNewBack.length > MAX_BACK_LENGTH) {
       finalNewBack = rawNewBack.substring(0, MAX_BACK_LENGTH - 3) + "...";
       // TODO: Potentially log this truncation or inform the user if necessary in a real scenario
-      console.warn(`Truncated regenerated back content for flashcard ${flashcardId} as it exceeded ${MAX_BACK_LENGTH} chars.`);
+      console.warn(
+        `Truncated regenerated back content for flashcard ${flashcardId} as it exceeded ${MAX_BACK_LENGTH} chars.`
+      );
     }
 
     // 5. Update the flashcard in the database
@@ -603,14 +615,14 @@ export const flashcardService = {
     }
 
     if (!updatedFlashcard) {
-        // This case should ideally not happen if the initial fetch succeeded and RLS is correct,
-        // but it's a safeguard.
-        console.error(
-            `Flashcard ${flashcardId} was not found during the update step after regeneration, though it was fetched initially.`
-        );
-        throw new FlashcardRegenerationFailedError(
-            `Failed to retrieve flashcard ${flashcardId} after update, indicating a possible data consistency issue.`
-        );
+      // This case should ideally not happen if the initial fetch succeeded and RLS is correct,
+      // but it's a safeguard.
+      console.error(
+        `Flashcard ${flashcardId} was not found during the update step after regeneration, though it was fetched initially.`
+      );
+      throw new FlashcardRegenerationFailedError(
+        `Failed to retrieve flashcard ${flashcardId} after update, indicating a possible data consistency issue.`
+      );
     }
 
     return updatedFlashcard as FlashcardDto;

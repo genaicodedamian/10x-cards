@@ -41,7 +41,7 @@ const EditFlashcardDialog: React.FC<EditFlashcardDialogProps> = ({ isOpen, onClo
 
   const handleSave = () => {
     if (!front.trim() || !back.trim()) {
-      setError("Both front and back fields are required.");
+      setError("Pola awers i rewers są wymagane.");
       return;
     }
     if (flashcard) {
@@ -66,15 +66,15 @@ const EditFlashcardDialog: React.FC<EditFlashcardDialogProps> = ({ isOpen, onClo
     <Dialog open={isOpen} onOpenChange={handleDialogStateChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Edit Flashcard Suggestion</DialogTitle>
+          <DialogTitle>Edytuj Sugestię Fiszki</DialogTitle>
           <DialogDescription>
-            Make changes to the front and back of your flashcard here. Click save when you&apos;re done.
+            Wprowadź zmiany na awersie i rewersie fiszki. Kliknij zapisz, gdy skończysz.
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor={frontInputId} className="text-right">
-              Front
+              Awers
             </Label>
             <Input
               id={frontInputId}
@@ -86,7 +86,7 @@ const EditFlashcardDialog: React.FC<EditFlashcardDialogProps> = ({ isOpen, onClo
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor={backInputId} className="text-right">
-              Back
+              Rewers
             </Label>
             <Input
               id={backInputId}
@@ -104,9 +104,9 @@ const EditFlashcardDialog: React.FC<EditFlashcardDialogProps> = ({ isOpen, onClo
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>
-            Cancel
+            Anuluj
           </Button>
-          <Button onClick={handleSave}>Save Changes</Button>
+          <Button onClick={handleSave}>Zapisz Zmiany</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
