@@ -1,80 +1,72 @@
-import { defineMiddleware } from 'astro:middleware';
-import { supabaseClient } from '../db/supabase.client';
-import type { User } from '@supabase/supabase-js';
+import { createSupabaseServerInstance } from "../db/supabase.client";
+import { defineMiddleware } from "astro:middleware";
 
-const PROTECTED_ROUTES = ["/dashboard"]; // Definicja chronionych ścieżek
-const LOGIN_ROUTE = "/login"; // Definicja ścieżki logowania
+// Ścieżki publiczne, które nie wymagają autentykacji
+// Zgodnie z supabase-auth.mdc, ale dostosowane do naszej struktury (np. /login zamiast /auth/login)
+const PUBLIC_PATHS = [
+  "/login",
+  "/register", // Dodajemy, jeśli mamy stronę rejestracji
+  "/forgot-password", // Dodajemy, jeśli mamy stronę odzyskiwania hasła
+  "/reset-password", // Dodajemy, jeśli mamy stronę resetowania hasła
+  // API endpoints (jeśli jakieś są publiczne)
+  "/api/auth/login",
+  "/api/auth/register",
+  // Można dodać inne publiczne API, np. /api/health
+];
 
-// --- START: Temporary Test User Bypass ---
-const TEST_USER_EMAIL = 'test_default@example.com';
-const TEST_USER_ID = '1509b58d-58e9-4e18-b3c3-878d2a1004c0';
-// --- END: Temporary Test User Bypass ---
+// Ścieżki, które są tylko dla niezalogowanych użytkowników (np. formularz logowania)
+// Jeśli zalogowany użytkownik spróbuje tu wejść, zostanie przekierowany na dashboard
+const AUTH_FLOW_PATHS = ["/login", "/register", "/forgot-password", "/reset-password"];
 
-export const onRequest = defineMiddleware(async (context, next) => {
-  context.locals.supabase = supabaseClient;
+// Ścieżki chronione, wymagające zalogowania
+const PROTECTED_PATHS = ["/dashboard"]; // Rozszerz o inne chronione ścieżki w aplikacji
 
-  // --- START: Temporary Test User Bypass Logic ---
-  const url = new URL(context.request.url);
-  if (url.searchParams.get('test_user_bypass') === 'true') {
-    console.log('ACTIVATING TEST USER BYPASS');
-    context.locals.user = {
-      id: TEST_USER_ID,
-      app_metadata: { provider: 'email', providers: [ 'email' ] },
-      user_metadata: { email: TEST_USER_EMAIL }, // Przykładowe user_metadata
-      aud: 'authenticated',
-      created_at: new Date().toISOString(),
-      // Możesz dodać więcej pól, jeśli są potrzebne dla Twojego Astro.locals.user
-      // Ważne, aby struktura była zbliżona do tego, co Supabase zwraca
-      // np. email, jeśli go używasz w dashboard.astro
-      email: TEST_USER_EMAIL 
-    } as User;
-    // Jeśli użytkownik jest zalogowany (nawet przez bypass) i próbuje przejść na /login lub /register, przekieruj na /dashboard
-    if (context.url.pathname === LOGIN_ROUTE || context.url.pathname === "/register") {
-      return context.redirect("/dashboard", 307);
+export const onRequest = defineMiddleware(async ({ locals, cookies, url, request, redirect }, next) => {
+  // Inicjalizacja klienta Supabase dla każdego żądania
+  const supabase = createSupabaseServerInstance({ cookies, headers: request.headers });
+  locals.supabase = supabase; // Udostępnienie klienta Supabase w Astro.locals
+
+  // Zawsze pobieraj sesję użytkownika jako pierwszy krok
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (user) {
+    locals.user = user; // Przypisujemy cały obiekt użytkownika Supabase
+  } else {
+    locals.user = null;
+  }
+
+  const currentPath = url.pathname;
+
+  // 1. Przekierowanie z / na /dashboard (jeśli zalogowany) lub /login (jeśli niezalogowany)
+  if (currentPath === "/") {
+    if (locals.user) {
+      return redirect("/dashboard", 307);
     }
-    return next(); // Przejdź dalej, pomijając standardową logikę autentykacji poniżej dla tego przypadku
-  }
-  // --- END: Temporary Test User Bypass Logic ---
-
-  const accessToken = context.cookies.get('sb-access-token')?.value;
-  const refreshToken = context.cookies.get('sb-refresh-token')?.value;
-
-  let user: User | null = null;
-
-  if (accessToken && refreshToken) {
-    const { data, error } = await context.locals.supabase.auth.setSession({
-      access_token: accessToken,
-      refresh_token: refreshToken,
-    });
-
-    if (error) {
-      // W przypadku błędu odświeżania sesji, np. token wygasł, usuwamy ciasteczka
-      context.cookies.delete("sb-access-token", { path: "/" });
-      context.cookies.delete("sb-refresh-token", { path: "/" });
-      console.error("Error refreshing session:", error.message);
-    } else if (data.user) {
-      user = data.user;
-    }
-  } else if (accessToken) {
-    // Fallback, jeśli jest tylko access token (chociaż setSession jest preferowane)
-    const { data } = await context.locals.supabase.auth.getUser(accessToken);
-    if (data.user) {
-      user = data.user;
-    }
+    // Jeśli niezalogowany, pozwalamy Astro obsłużyć stronę główną (np. landing page)
+    // lub przekierowujemy na /login, jeśli strona główna jest tylko dla zalogowanych
+    // Zgodnie z PRD US-000, strona główna jest publiczna i ma przyciski logowania/rejestracji.
+    // Więc nie przekierowujemy stąd na /login, chyba że to jest zamierzone.
+    // Na razie zostawiam tak, że / przekierowuje na dashboard jeśli zalogowany.
+    // Jeśli ma być publiczny landing page, tę logikę trzeba dostosować.
   }
 
-  context.locals.user = user;
-
-  // Ochrona ścieżek
-  const currentPath = context.url.pathname;
-  if (PROTECTED_ROUTES.includes(currentPath) && !user) {
-    return context.redirect(LOGIN_ROUTE, 307); // Przekierowanie na stronę logowania
+  // 2. Jeśli użytkownik jest zalogowany i próbuje uzyskać dostęp do ścieżek przepływu autentykacji (np. /login)
+  if (locals.user && AUTH_FLOW_PATHS.includes(currentPath)) {
+    return redirect("/dashboard", 307);
   }
 
-  // Jeśli użytkownik jest zalogowany i próbuje przejść na /login lub /register, przekieruj na /dashboard
-  if (user && (currentPath === LOGIN_ROUTE || currentPath === "/register")) {
-    return context.redirect("/dashboard", 307);
+  // 3. Jeśli użytkownik NIE jest zalogowany i próbuje uzyskać dostęp do chronionej ścieżki
+  //    (która nie jest jednocześnie ścieżką publiczną - to ważne np. dla API)
+  if (
+    !locals.user &&
+    PROTECTED_PATHS.some((path) => currentPath.startsWith(path)) &&
+    !PUBLIC_PATHS.includes(currentPath)
+  ) {
+    return redirect("/login", 307);
   }
 
+  // Kontynuuj do następnego middleware lub strony
   return next();
-}); 
+});

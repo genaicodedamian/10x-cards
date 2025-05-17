@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
 
 export function LoginForm() {
   const [email, setEmail] = React.useState("");
@@ -32,13 +33,34 @@ export function LoginForm() {
       return;
     }
     setIsLoading(true);
-    // Placeholder for Supabase signInWithPassword()
-    console.log("Submitting login with", { email, password });
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    // TODO: Replace with actual Supabase call and error/success handling
-    // Example from spec: setLoginError("Nieprawidłowy adres e-mail lub hasło.");
-    // Example success: window.location.href = "/dashboard"; // toast.success("Zalogowano pomyślnie!")
+
+    try {
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        // API powinno zwrócić { error: "wiadomość" }
+        setLoginError(data.error || "Wystąpił nieoczekiwany błąd.");
+        setIsLoading(false);
+        return;
+      }
+
+      // Sukces
+      console.log("Login successful", data);
+      toast.success("Zalogowano pomyślnie!"); // Zgodnie z US-002
+      window.location.href = "/dashboard"; // Zgodnie z US-002
+    } catch (error) {
+      console.error("Login submission error:", error);
+      setLoginError("Nie można połączyć się z serwerem. Spróbuj ponownie później.");
+    }
+
     setIsLoading(false);
   };
 

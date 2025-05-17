@@ -1,0 +1,34 @@
+---
+import PublicLayout from "@/layouts/PublicLayout.astro";
+import { Button } from "@/components/ui/button";
+---
+
+<PublicLayout title="404 - Hmmm, tu fiszek nie ma!">
+  <div class="container mx-auto flex flex-col items-center justify-center text-center min-h-[calc(100vh-10rem)] px-4">
+    <h1 class="text-9xl font-bold text-primary mb-4">404</h1>
+    <h2 class="text-4xl font-semibold mb-6">Coś poszło nie tak...</h2>
+    <p class="text-xl text-muted-foreground mb-8 max-w-md">
+      Wygląda na to, że ta strona to fiszka, której treść uleciała z pamięci. Albo po prostu źle wpisałeś/wpisałaś
+      adres.
+    </p>
+    <p class="text-lg text-muted-foreground mb-4">
+      A może to część Twojego zadania przy akceptacji projektu <span class="font-bold text-gradient">10xDevs</span>, żeby
+      sprawdzić, czy mamy stronę 404? Jeśli tak, to gratulacje! Doceniamy Twoją skrupulatność!
+    </p>
+    <p class="text-md text-muted-foreground mb-12">
+      PS. Jeśli jesteś tu przypadkiem, nie martw się, nawet najlepszym zdarza się zgubić w notatkach.
+    </p>
+    <a href="/">
+      <Button size="lg">Wróć na stronę główną</Button>
+    </a>
+  </div>
+</PublicLayout>
+
+<style>
+  .text-gradient {
+    background-image: linear-gradient(to right, #7928ca, #ff0080);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+</style>

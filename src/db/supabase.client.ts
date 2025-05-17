@@ -1,14 +1,45 @@
-import { createClient } from '@supabase/supabase-js';
+import type { AstroCookies } from "astro";
+import { createServerClient, type CookieOptionsWithName } from "@supabase/ssr";
+import type { Database } from "../db/database.types.ts";
 
-import type { Database } from '../db/database.types.ts';
+export const cookieOptions: CookieOptionsWithName = {
+  name: "sb-auth-token", // Nazwa ciasteczka może być dostosowana, ale 'sb-auth-token' jest często używane i zgodne z przykładami Supabase.
+  path: "/",
+  secure: true, // W produkcji zawsze true. Dla dewelopmentu na localhost bez HTTPS może być false.
+  httpOnly: true,
+  sameSite: "lax",
+  maxAge: 60 * 60 * 24 * 7, // 1 tydzień, można dostosować
+};
 
-const supabaseUrl = import.meta.env.SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.SUPABASE_KEY;
+function parseCookieHeader(cookieHeader: string | null | undefined): { name: string; value: string }[] {
+  if (!cookieHeader) {
+    return [];
+  }
+  return cookieHeader.split(";").map((cookie) => {
+    const [name, ...rest] = cookie.trim().split("=");
+    return { name, value: rest.join("=") };
+  });
+}
 
-export const supabaseClient = createClient<Database>(supabaseUrl, supabaseAnonKey);
+export const createSupabaseServerInstance = (context: { headers: Headers; cookies: AstroCookies }) => {
+  const supabase = createServerClient<Database>(import.meta.env.SUPABASE_URL, import.meta.env.SUPABASE_KEY, {
+    cookieOptions,
+    cookies: {
+      getAll() {
+        // Astro.cookies.getAll() zwraca obiekt { name: string, value: string, ...options }[]
+        // createServerClient oczekuje { name: string, value: string }[]
+        // Musimy dostosować to, jeśli Astro.cookies.getAll() jest używane bezpośrednio
+        // lub parsować nagłówek 'Cookie' jak w przykładzie z supabase-auth.mdc
+        return parseCookieHeader(context.headers.get("Cookie"));
+      },
+      setAll(cookiesToSet) {
+        cookiesToSet.forEach(({ name, value, options }) => context.cookies.set(name, value, options));
+      },
+    },
+  });
 
-// Export the type of the specific client instance
-export type SupabaseClient = typeof supabaseClient;
+  return supabase;
+};
 
-// Default User ID for development/testing when auth is not fully implemented
-export const DEFAULT_USER_ID = '1509b58d-58e9-4e18-b3c3-878d2a1004c0'; // Replace with a valid UUID if needed for FK constraints 
+// Export typu dla klienta serwerowego, jeśli potrzebne gdzie indziej
+export type SupabaseServerClient = ReturnType<typeof createSupabaseServerInstance>;
