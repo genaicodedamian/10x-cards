@@ -1,0 +1,67 @@
+.perspective {
+  perspective: 1000px;
+}
+
+.flip-card-outer {
+  /* Not strictly necessary for functionality but can be used for positioning/sizing */
+  /* width: 100%; */
+  /* height: 250px; Set a fixed height or ensure parent has one */
+}
+
+.flip-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  /* min-height: 250px; Ensure this matches or is handled by JS if content varies */
+  text-align: center;
+  transition: transform 0.7s;
+  transform-style: preserve-3d;
+  /* box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2); /* Replaced by Tailwind shadow on Card */
+  /* cursor: pointer; /* Added on Card via Tailwind */
+}
+
+.flip-card-inner.is-flipped {
+  transform: rotateY(180deg);
+}
+
+.flip-card-front,
+.flip-card-back {
+  position: absolute; /* Important for stacking */
+  width: 100%;
+  height: 100%;
+  -webkit-backface-visibility: hidden; /* Safari */
+  backface-visibility: hidden;
+  display: flex; /* To use flex properties for content centering */
+  flex-direction: column; /* Stack header and content vertically */
+  /* justify-content: center; /* Center content vertically (handled by CardContent style now) */
+  /* align-items: center; /* Center content horizontally (handled by CardContent style now) */
+  /* padding: 1rem; /* Added to CardContent now */
+  /* Ensure the background of the Card itself is opaque if using this approach */
+  /* The Card component from Shadcn should handle its own background */
+}
+
+.flip-card-front {
+  /* background-color: #bbb; /* Replaced by Card styles */
+  /* color: black; /* Replaced by Card styles */
+  /* z-index: 2; /* Not strictly needed if only one side visible via rotate */
+}
+
+.flip-card-back {
+  /* background-color: dodgerblue; /* Replaced by Card styles */
+  /* color: white; /* Replaced by Card styles */
+  transform: rotateY(180deg);
+  /* z-index: 1; /* Not strictly needed */
+}
+
+/* Ensure CardHeader and CardContent are displayed correctly within the absolute positioned divs */
+.flip-card-front .\!pb-2, /* Targeting CardHeader specifically */
+.flip-card-back .\!pb-2 {
+  width: 100%; /* Ensure header takes full width */
+}
+
+.flip-card-front > div[data-slot="card-content"],
+.flip-card-back > div[data-slot="card-content"] {
+  flex-grow: 1; /* Allow content to take remaining space */
+  width: 100%; /* Ensure content takes full width */
+  /* min-height is handled by inline style for now */
+} 

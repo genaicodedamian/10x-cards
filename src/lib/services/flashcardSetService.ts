@@ -119,20 +119,51 @@ export class FlashcardSetService {
     supabase: SupabaseClient,
     setId: string,
     userId: string,
-    data: { name: string }
+    data: { name?: string; last_studied_at?: string }
   ): Promise<FlashcardSetDto | null> {
-    console.log("FlashcardSetService.updateFlashcardSet called with:", { setId, userId, name: data.name });
+    console.log("FlashcardSetService.updateFlashcardSet called with:", { setId, userId, ...data });
+
+    const updatePayload: Partial<Tables<"flashcard_sets">> = {};
+    if (data.name !== undefined) {
+      updatePayload.name = data.name;
+    }
+    if (data.last_studied_at !== undefined) {
+      updatePayload.last_studied_at = data.last_studied_at;
+    }
+
+    // Ensure there's something to update
+    if (Object.keys(updatePayload).length === 0) {
+      console.warn("updateFlashcardSet called with no fields to update.");
+      // Optionally, fetch and return the existing set or handle as an error/noop
+      // For now, let's assume the validation at the schema level prevents this
+      // or we can fetch the current record.
+      // Fetching current record to ensure consistency if nothing is updated:
+      const { data: currentSet, error: fetchError } = await supabase
+        .from("flashcard_sets")
+        .select("*")
+        .eq("id", setId)
+        .eq("user_id", userId)
+        .single();
+      if (fetchError) {
+        console.error("Error fetching current set when update payload was empty:", fetchError);
+        throw new Error("DB_FETCH_FAILED_ON_EMPTY_UPDATE");
+      }
+      return currentSet as FlashcardSetDto | null;
+    }
+    
+    // updated_at is managed by DB trigger or can be set manually if needed:
+    // updatePayload.updated_at = new Date().toISOString();
 
     const { data: updatedSet, error } = await supabase
       .from("flashcard_sets")
-      .update({ name: data.name /* updated_at is managed by DB trigger */ })
+      .update(updatePayload)
       .eq("id", setId)
       .eq("user_id", userId) // Crucial for authorization at the query level
       .select() // To return the updated record
       .single(); // Expect a single record or error/null
 
     if (error) {
-      if (error.code === "23505") {
+      if (error.code === "23505" && data.name !== undefined) { // Check for unique violation only if name is being updated
         // PostgreSQL error code for unique violation
         console.warn("Supabase error updating flashcard set - unique constraint violation:", {
           setId,
@@ -142,7 +173,7 @@ export class FlashcardSetService {
         });
         throw new Error("DUPLICATE_SET_NAME"); // Specific error for handler to map to 400
       }
-      console.error("Supabase error updating flashcard set:", { setId, userId, name: data.name, error });
+      console.error("Supabase error updating flashcard set:", { setId, userId, ...data, error });
       // Throw a generic error or a specific one that the handler can map to 500
       throw new Error("DB_UPDATE_FAILED");
     }

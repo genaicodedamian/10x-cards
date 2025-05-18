@@ -11,7 +11,7 @@ import type {
 } from "../../types";
 // import type { TablesInsert } from "../../db/database.types"; // Removed unused import
 import { z } from "zod";
-import { supabaseClient as supabase } from "../../db/supabase.client"; // Use supabaseClient
+// import { supabaseClient as supabase } from "../../db/supabase.client"; // Comment out or remove if all methods will take supabase as param
 // import { DEFAULT_USER_ID } from "../../db/supabase.client"; // Removed unused import
 // import { FlashcardSetNotFoundError, FlashcardValidationError, DatabaseError } from '@/lib/errors'; // Removed as errors.ts doesn't exist
 import type { Json } from "../../db/database.types"; // Ensure Json type is available or imported if not globally defined by Supabase types
@@ -360,68 +360,76 @@ export const flashcardService = {
 
   // New method for listing flashcards in a set
   async getFlashcardsInSet(
+    supabase: SupabaseClient,
     userId: string,
     setId: string,
     params: ValidatedFlashcardListParams
   ): Promise<PaginatedFlashcardsDto | null> {
-    // console.log("FlashcardService.getFlashcardsInSet called with:", { userId, setId, params }); // Removed console
+    // console.log(`FlashcardService: Fetching flashcards for set: ${setId}, user: ${userId}, params:`, params); // Removed console
 
-    // 1. Verify set ownership (setId belongs to userId)
-    const { data: set, error: setError } = await supabase
+    // 1. Check if the flashcard set exists and belongs to the user.
+    // This is crucial for authorization.
+    const { data: setExists, error: checkError } = await supabase
       .from("flashcard_sets")
       .select("id")
       .eq("id", setId)
       .eq("user_id", userId)
       .maybeSingle();
 
-    if (setError) {
-      // console.error(`Database error while verifying flashcard set ${setId} for user ${userId}:`, setError); // Removed console
-      // Consider throwing a more generic database error or logging more details
-      throw new Error(`Database error while verifying flashcard set: ${setError.message}`);
+    if (checkError) {
+      // console.error("Error checking flashcard set existence:", checkError); // Removed console
+      // Consider throwing a more specific error or handling it based on error code
+      throw new Error("Database error while verifying flashcard set.");
     }
 
-    if (!set) {
-      throw new FlashcardSetNotFoundError(
-        `Flashcard set with ID ${setId} not found or user ${userId} does not have access.`
-      );
+    if (!setExists) {
+      // console.log(`Flashcard set with ID ${setId} not found for user ${userId}.`); // Removed console
+      // To align with FlashcardSetNotFoundError used elsewhere for sets.
+      throw new FlashcardSetNotFoundError(`Flashcard set with ID ${setId} not found or user does not have access.`);
     }
 
-    // 2. Fetch flashcards with pagination, sorting, filtering & 3. Fetch total count
-    const { page, limit, sort_by, order, filter_source } = params;
-    const rangeFrom = (page - 1) * limit;
-    const rangeTo = page * limit - 1;
+    // 2. Proceed to fetch flashcards with validated & defaulted pagination/sorting.
+    const { page, limit, sort_by, order } = params;
+    const offset = (page - 1) * limit;
 
-    let query = supabase.from("flashcards").select("*", { count: "exact" }).eq("set_id", setId).eq("user_id", userId);
+    let query = supabase
+      .from("flashcards")
+      .select("*", { count: "exact" })
+      .eq("set_id", setId)
+      .eq("user_id", userId);
 
-    if (filter_source) {
-      query = query.eq("source", filter_source);
+    // Apply filtering if filter_source is provided
+    if (params.filter_source) {
+      query = query.eq("source", params.filter_source);
     }
 
-    query = query.order(sort_by, { ascending: order === "asc" }).range(rangeFrom, rangeTo);
+    // Apply sorting
+    query = query.order(sort_by, { ascending: order === "asc" });
 
-    const { data: flashcards, error: flashcardsError, count } = await query;
+    // Apply pagination
+    query = query.range(offset, offset + limit - 1);
 
-    if (flashcardsError) {
-      // console.error(`Database error while fetching flashcards for set ${setId}:`, flashcardsError); // Removed console
-      throw new Error(`Database error while fetching flashcards: ${flashcardsError.message}`);
+    const { data, error, count } = await query;
+
+    if (error) {
+      // console.error("Error fetching flashcards:", error); // Removed console
+      // Consider throwing a more specific error or handling it based on error code
+      throw new Error("Database error while fetching flashcards.");
     }
 
-    // 4. Construct and return PaginatedFlashcardsDto
-    const totalItems = count || 0;
-    const totalPages = Math.ceil(totalItems / limit);
+    const total_items = count ?? 0;
+    const total_pages = Math.ceil(total_items / limit);
 
-    const paginationInfo = {
+    const pagination = {
       current_page: page,
-      total_pages: totalPages,
-      total_items: totalItems,
-      limit: limit,
+      total_pages: total_pages > 0 ? total_pages : 1,
+      total_items,
+      limit,
     };
 
-    // console.log("Returning PaginatedFlashcardsDto", { data: flashcards || [], pagination: paginationInfo }); // Removed console
-
     return {
-      data: flashcards || [], // Ensure data is always an array
-      pagination: paginationInfo,
+      data: data || [],
+      pagination,
     };
   },
 

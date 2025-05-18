@@ -1,7 +1,7 @@
 import { z } from "zod";
 import type { APIContext } from "astro";
-import { DEFAULT_USER_ID } from "@/db/supabase.client"; // TODO: Remove once auth is implemented
-import { flashcardService, FlashcardSetNotFoundError } from "@/lib/services/flashcardService"; // Adjusted path
+// import { DEFAULT_USER_ID } from "@/db/supabase.client"; // REMOVED
+import { flashcardService, FlashcardSetNotFoundError } from "@/lib/services/flashcardService";
 
 export const prerender = false;
 
@@ -11,14 +11,25 @@ const pathParamsSchema = z.object({
 
 const queryParamsSchema = z.object({
   page: z.coerce.number().int().positive().optional().default(1),
-  limit: z.coerce.number().int().positive().min(1).max(100).optional().default(10),
+  limit: z.coerce.number().int().positive().min(1).max(1000).optional().default(10),
   sort_by: z.enum(["created_at", "updated_at", "front", "back", "source"]).optional().default("created_at"),
   order: z.enum(["asc", "desc"]).optional().default("asc"),
   filter_source: z.enum(["manual", "ai_generated", "ai_generated_modified"] as const).optional(),
 });
 
 export async function GET(context: APIContext): Promise<Response> {
-  const { params: astroParams, url } = context;
+  const { params: astroParams, url, locals } = context;
+  const supabase = locals.supabase;
+  const user = locals.user; // Get the authenticated user object
+
+  if (!user) {
+    console.error("User not authenticated for GET /api/flashcard-sets/{setId}/flashcards");
+    return new Response(JSON.stringify({ message: "Unauthorized: User not authenticated." }), {
+      status: 401,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+  const userId = user.id; // Use the actual user ID
 
   // 1. Validate path parameter setId
   const pathValidationResult = pathParamsSchema.safeParse(astroParams);
@@ -49,22 +60,27 @@ export async function GET(context: APIContext): Promise<Response> {
   const validatedQueryParams = queryValidationResult.data;
 
   try {
-    // 3. Call the service method
-    // Note: Using DEFAULT_USER_ID as per current project setup
+    if (!supabase) {
+      console.error("Supabase client not found in locals for GET /api/flashcard-sets/{setId}/flashcards");
+      return new Response(JSON.stringify({ message: "Internal Server Error: Supabase client missing." }), {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
     const result = await flashcardService.getFlashcardsInSet(
-      DEFAULT_USER_ID, // Per instruction, replace with actual user from context.locals.user.id later
+      supabase,
+      userId, // Use actual userId from authenticated user
       setId,
       validatedQueryParams
     );
 
-    // 4. Handle successful response from service
     if (result) {
       return new Response(JSON.stringify(result), {
         status: 200,
         headers: { "Content-Type": "application/json" },
       });
     }
-    // This case should ideally not be reached if service throws errors or returns data
     return new Response(
       JSON.stringify({ message: "An unexpected error occurred: Service returned no data and no error." }),
       {
@@ -73,14 +89,12 @@ export async function GET(context: APIContext): Promise<Response> {
       }
     );
   } catch (error) {
-    // 5. Handle errors from service
     if (error instanceof FlashcardSetNotFoundError) {
       return new Response(JSON.stringify({ message: error.message }), {
         status: 404,
         headers: { "Content-Type": "application/json" },
       });
     }
-    // Handle other generic errors (e.g., database errors thrown by the service)
     return new Response(
       JSON.stringify({ message: error instanceof Error ? error.message : "An internal server error occurred" }),
       {

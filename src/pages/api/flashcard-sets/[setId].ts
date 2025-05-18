@@ -1,14 +1,13 @@
 import type { APIRoute } from "astro";
-import { UpdateFlashcardSetBodySchema, UpdateFlashcardSetParamsSchema } from "../../../lib/schemas/flashcardSetSchemas"; // Upewnij się, że ścieżka jest poprawna
-import { flashcardSetService } from "../../../lib/services/flashcardSetService"; // Upewnij się, że ścieżka jest poprawna
-import type { FlashcardSetDto } from "../../../types"; // Upewnij się, że ścieżka jest poprawna
-import { DEFAULT_USER_ID, type SupabaseClient } from "../../../db/supabase.client"; // Poprawiony import SupabaseClient
+import { UpdateFlashcardSetBodySchema, FlashcardSetParamsSchema } from "../../../lib/schemas/flashcardSetSchemas";
+import { flashcardSetService } from "../../../lib/services/flashcardSetService";
+import type { FlashcardSetDto } from "../../../types";
+import { DEFAULT_USER_ID, type SupabaseClient } from "../../../db/supabase.client";
 
 export const prerender = false;
 
-// Na razie tylko metoda PUT, można rozbudować o inne metody (np. GET, DELETE dla tego samego zasobu)
 export const PUT: APIRoute = async ({ params, request, locals }) => {
-  const supabase = locals.supabase as SupabaseClient; // Teraz używa poprawnego typu
+  const supabase = locals.supabase as SupabaseClient;
   if (!supabase) {
     console.error("Supabase client not found in locals");
     return new Response(JSON.stringify({ message: "Wewnętrzny błąd serwera: Klient Supabase niedostępny." }), {
@@ -17,10 +16,8 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
     });
   }
 
-  // TODO: Docelowo context.locals.user?.id
   const userId = locals.user?.id || DEFAULT_USER_ID;
   if (!userId) {
-    // Dodatkowe zabezpieczenie, choć DEFAULT_USER_ID powinien zawsze być
     console.error("User ID not found and DEFAULT_USER_ID is also missing.");
     return new Response(JSON.stringify({ message: "Brak autoryzacji: Nie udało się zidentyfikować użytkownika." }), {
       status: 401,
@@ -28,7 +25,7 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
     });
   }
 
-  const paramsValidation = UpdateFlashcardSetParamsSchema.safeParse(params);
+  const paramsValidation = FlashcardSetParamsSchema.safeParse(params);
   if (!paramsValidation.success) {
     return new Response(
       JSON.stringify({
@@ -57,10 +54,10 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
       { status: 400, headers: { "Content-Type": "application/json" } }
     );
   }
-  const { name } = bodyValidation.data;
+  const { name, last_studied_at } = bodyValidation.data;
 
   try {
-    const updatedFlashcardSet = await flashcardSetService.updateFlashcardSet(supabase, setId, userId, { name });
+    const updatedFlashcardSet = await flashcardSetService.updateFlashcardSet(supabase, setId, userId, { name, last_studied_at });
 
     if (!updatedFlashcardSet) {
       return new Response(JSON.stringify({ message: "Nie znaleziono zestawu fiszek." }), {
@@ -81,8 +78,6 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
         headers: { "Content-Type": "application/json" },
       });
     }
-    // Można dodać bardziej szczegółową obsługę dla 'DB_UPDATE_FAILED' jeśli potrzeba innego komunikatu niż generyczny 500
-    // if (error.message === 'DB_UPDATE_FAILED') { ... }
     return new Response(JSON.stringify({ message: "Wewnętrzny błąd serwera." }), {
       status: 500,
       headers: { "Content-Type": "application/json" },

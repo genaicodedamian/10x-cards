@@ -1,0 +1,40 @@
+---
+export const prerender = false;
+
+import StudySessionLoader from '@/components/study/StudySessionLoader';
+import Layout from '@/layouts/Layout.astro';
+
+const { setId } = Astro.params;
+
+let pageTitle = "Study Session";
+if (setId) {
+  // We don't have the set name here yet, could be fetched in StudySessionLoader
+  // and passed up or displayed there. For now, just using the ID.
+  pageTitle = `Studying Set: ${setId.substring(0, 8)}...`; 
+}
+
+if (!setId) {
+  console.error("setId is missing from Astro.params for study session page.");
+  // This should ideally be caught by Astro's routing for required dynamic params
+  // or redirect to an error page if critical.
+  // For now, the conditional rendering below will show an error message.
+}
+---
+
+<Layout title={pageTitle}>
+  {setId ? (
+    <div class="container mx-auto px-4 py-8 flex flex-col items-center">
+      <StudySessionLoader setId={setId} client:load />
+    </div>
+  ) : (
+    <main class="container mx-auto px-4 py-8 text-center">
+      <h1 class="text-2xl font-bold text-red-600 dark:text-red-400 mb-4">Error: Set ID Missing</h1>
+      <p class="text-lg text-gray-700 dark:text-gray-300">
+        The Set ID is missing from the URL. Please ensure you are accessing this page via a valid link.
+      </p>
+      <a href="/my-flashcards" class="mt-6 inline-block px-6 py-2 text-lg font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors">
+        Go to My Flashcards
+      </a>
+    </main>
+  )}
+</Layout> 

@@ -60,7 +60,8 @@ export type CreateFlashcardSetCommand = Pick<TablesInsert<"flashcard_sets">, "na
  * API: PUT /api/flashcard-sets/{setId}
  * Derives from TablesUpdate<'flashcard_sets'>, requiring only 'name'.
  */
-export type UpdateFlashcardSetCommand = Required<Pick<TablesUpdate<"flashcard_sets">, "name">>;
+export type UpdateFlashcardSetCommand = Pick<TablesUpdate<"flashcard_sets">, "name"> &
+  Partial<Pick<TablesUpdate<"flashcard_sets">, "last_studied_at">>;
 
 //-----------------------------------------------------------------------------
 // Flashcard Set DTOs (API Responses)
