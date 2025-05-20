@@ -31,6 +31,10 @@
 ### AI
 *   **Openrouter.ai:** A service providing access to a wide variety of LLMs (e.g., OpenAI, Anthropic, Google) for generating flashcard content.
 
+### Testing
+*   **Vitest:** For unit and component testing.
+*   **Playwright:** For end-to-end testing.
+
 ### CI/CD & Hosting
 *   **GitHub Actions:** For automating build, test, and deployment pipelines.
 *   **DigitalOcean:** For hosting the application, likely via Docker containers.
@@ -99,6 +103,14 @@ The `package.json` file includes the following scripts:
 *   `npm run lint`: Lints the codebase using ESLint to identify and report on patterns in JavaScript, TypeScript, and Astro files.
 *   `npm run lint:fix`: Lints the codebase and automatically fixes fixable issues.
 *   `npm run format`: Formats the codebase using Prettier to ensure consistent styling.
+*   `npm run test`: Runs unit and component tests using Vitest.
+*   `npm run test:watch`: Runs Vitest in watch mode for interactive testing.
+*   `npm run test:ui`: Opens the Vitest UI for a more visual testing experience.
+*   `npm run test:coverage`: Runs Vitest tests and generates a code coverage report.
+*   `npm run e2e`: Runs end-to-end tests using Playwright.
+*   `npm run e2e:ui`: Opens the Playwright UI for interactive E2E test debugging.
+*   `npm run e2e:headed`: Runs Playwright tests with the browser visible.
+*   `npm run e2e:codegen`: Starts Playwright Codegen to help record E2E tests.
 
 ## Project Structure
 

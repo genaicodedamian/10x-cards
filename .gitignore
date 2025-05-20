@@ -22,3 +22,10 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+# Test runner files
+coverage/
+test-results/
+.vitest_cache/
+playwright/.cache/
+playwright-report/
