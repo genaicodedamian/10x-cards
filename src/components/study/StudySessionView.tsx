@@ -1,9 +1,9 @@
-import React from 'react';
-import type { FlashcardDto } from '@/types';
-import { useStudySession } from '@/hooks/useStudySession';
-import StudyFlashcard from './StudyFlashcard';
-import FlashcardRatingButtons from './FlashcardRatingButtons';
-import StudyCompletionSummary from './StudyCompletionSummary';
+import React from "react";
+import type { FlashcardDto } from "@/types";
+import { useStudySession } from "@/hooks/useStudySession";
+import StudyFlashcard from "./StudyFlashcard";
+import FlashcardRatingButtons from "./FlashcardRatingButtons";
+import StudyCompletionSummary from "./StudyCompletionSummary";
 // Placeholder for a potential Spinner or loading indicator for card transitions
 // import { Spinner } from '@/components/ui/spinner';
 
@@ -61,21 +61,14 @@ const StudySessionView: React.FC<StudySessionViewProps> = ({ flashcards, setId }
           Pozostało do nauki: {cardsRemainingToLearn} / {totalFlashcardsInSet}
         </p>
       )}
-      <StudyFlashcard
-        flashcard={currentFlashcard}
-        isFlipped={isFlipped}
-        onFlip={flipCard}
-      />
+      <StudyFlashcard flashcard={currentFlashcard} isFlipped={isFlipped} onFlip={flipCard} />
       {isFlipped && !isSubmittingRating && (
-        <FlashcardRatingButtons
-          onRateKnown={rateKnown}
-          onRateUnknown={rateUnknown}
-          disabled={isSubmittingRating} 
-        />
+        <FlashcardRatingButtons onRateKnown={rateKnown} onRateUnknown={rateUnknown} disabled={isSubmittingRating} />
       )}
-      {isSubmittingRating && <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">Przetwarzanie...</p>} {/* Optional: show a processing message */}
+      {isSubmittingRating && <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">Przetwarzanie...</p>}{" "}
+      {/* Optional: show a processing message */}
     </div>
   );
 };
 
-export default StudySessionView; 
+export default StudySessionView;

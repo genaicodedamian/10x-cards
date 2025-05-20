@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import FlashcardFormDialog from "./FlashcardFormDialog";
 import TempFlashcardList from "./TempFlashcardList";
 import SaveSetDialog from "./SaveSetDialog";
-import type { TemporaryFlashcard } from "@/types"; // Ensure TemporaryFlashcard is imported if needed directly here
 import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
 import {
@@ -20,28 +19,28 @@ import {
 
 const CreateManualView: React.FC = () => {
   // Individual selectors for state and actions
-  const tempFlashcards = useCreateManualViewStore(state => state.tempFlashcards);
-  const isFlashcardFormModalOpen = useCreateManualViewStore(state => state.isFlashcardFormModalOpen);
-  const isSaveSetModalOpen = useCreateManualViewStore(state => state.isSaveSetModalOpen);
-  const isLoading = useCreateManualViewStore(state => state.isLoading);
-  const editingFlashcard = useCreateManualViewStore(state => state.editingFlashcard);
-  const error = useCreateManualViewStore(state => state.error);
-  const isConfirmDeleteDialogOpen = useCreateManualViewStore(state => state.isConfirmDeleteDialogOpen); // New state
-  const flashcardIdToDelete = useCreateManualViewStore(state => state.flashcardIdToDelete); // New state
-  const isSuccessModalOpen = useCreateManualViewStore(state => state.isSuccessModalOpen); // New state
-  const successModalMessage = useCreateManualViewStore(state => state.successModalMessage); // New state
+  const tempFlashcards = useCreateManualViewStore((state) => state.tempFlashcards);
+  const isFlashcardFormModalOpen = useCreateManualViewStore((state) => state.isFlashcardFormModalOpen);
+  const isSaveSetModalOpen = useCreateManualViewStore((state) => state.isSaveSetModalOpen);
+  const isLoading = useCreateManualViewStore((state) => state.isLoading);
+  const editingFlashcard = useCreateManualViewStore((state) => state.editingFlashcard);
+  const error = useCreateManualViewStore((state) => state.error);
+  const isConfirmDeleteDialogOpen = useCreateManualViewStore((state) => state.isConfirmDeleteDialogOpen); // New state
+  const flashcardIdToDelete = useCreateManualViewStore((state) => state.flashcardIdToDelete); // New state
+  const isSuccessModalOpen = useCreateManualViewStore((state) => state.isSuccessModalOpen); // New state
+  const successModalMessage = useCreateManualViewStore((state) => state.successModalMessage); // New state
 
-  const openNewFlashcardModal = useCreateManualViewStore(state => state.openNewFlashcardModal);
-  const closeFlashcardFormModal = useCreateManualViewStore(state => state.closeFlashcardFormModal);
-  const openSaveSetModal = useCreateManualViewStore(state => state.openSaveSetModal);
-  const closeSaveSetModal = useCreateManualViewStore(state => state.closeSaveSetModal);
-  const addFlashcard = useCreateManualViewStore(state => state.addFlashcard);
-  const updateFlashcard = useCreateManualViewStore(state => state.updateFlashcard);
-  const deleteFlashcard = useCreateManualViewStore(state => state.deleteFlashcard); // Get deleteFlashcard action
-  const saveSetAndFlashcards = useCreateManualViewStore(state => state.saveSetAndFlashcards);
-  const clearError = useCreateManualViewStore(state => state.clearError);
-  const closeConfirmDeleteDialog = useCreateManualViewStore(state => state.closeConfirmDeleteDialog); // New action
-  const closeSuccessModal = useCreateManualViewStore(state => state.closeSuccessModal); // New action
+  const openNewFlashcardModal = useCreateManualViewStore((state) => state.openNewFlashcardModal);
+  const closeFlashcardFormModal = useCreateManualViewStore((state) => state.closeFlashcardFormModal);
+  const openSaveSetModal = useCreateManualViewStore((state) => state.openSaveSetModal);
+  const closeSaveSetModal = useCreateManualViewStore((state) => state.closeSaveSetModal);
+  const addFlashcard = useCreateManualViewStore((state) => state.addFlashcard);
+  const updateFlashcard = useCreateManualViewStore((state) => state.updateFlashcard);
+  const deleteFlashcard = useCreateManualViewStore((state) => state.deleteFlashcard); // Get deleteFlashcard action
+  const saveSetAndFlashcards = useCreateManualViewStore((state) => state.saveSetAndFlashcards);
+  const clearError = useCreateManualViewStore((state) => state.clearError);
+  const closeConfirmDeleteDialog = useCreateManualViewStore((state) => state.closeConfirmDeleteDialog); // New action
+  const closeSuccessModal = useCreateManualViewStore((state) => state.closeSuccessModal); // New action
 
   useEffect(() => {
     if (error) {
@@ -90,11 +89,8 @@ const CreateManualView: React.FC = () => {
 
       <div className="flex space-x-4">
         <Button onClick={openNewFlashcardModal}>+ Stwórz nową fiszkę</Button>
-        <Button 
-          onClick={openSaveSetModal} 
-          disabled={tempFlashcards.length === 0 || isLoading}
-        >
-          {isLoading && isSaveSetModalOpen ? 'Zapisywanie zestawu...' : 'Zapisz zestaw fiszek'}
+        <Button onClick={openSaveSetModal} disabled={tempFlashcards.length === 0 || isLoading}>
+          {isLoading && isSaveSetModalOpen ? "Zapisywanie zestawu..." : "Zapisz zestaw fiszek"}
         </Button>
       </div>
 
@@ -108,7 +104,7 @@ const CreateManualView: React.FC = () => {
         mode={editingFlashcard ? "edit" : "create"}
       />
 
-      <SaveSetDialog 
+      <SaveSetDialog
         isOpen={isSaveSetModalOpen}
         onClose={closeSaveSetModal}
         onSave={handleSaveSet}
@@ -120,15 +116,12 @@ const CreateManualView: React.FC = () => {
           <AlertDialogHeader>
             <AlertDialogTitle>Czy na pewno chcesz usunąć?</AlertDialogTitle>
             <AlertDialogDescription>
-              Tej operacji nie można cofnąć. Fiszka zostanie trwale usunięta
-              z Twojej tymczasowej listy.
+              Tej operacji nie można cofnąć. Fiszka zostanie trwale usunięta z Twojej tymczasowej listy.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel onClick={closeConfirmDeleteDialog}>Anuluj</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDeleteFlashcard}>
-              Tak, usuń fiszkę
-            </AlertDialogAction>
+            <AlertDialogAction onClick={confirmDeleteFlashcard}>Tak, usuń fiszkę</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
@@ -137,14 +130,10 @@ const CreateManualView: React.FC = () => {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Sukces!</AlertDialogTitle>
-            <AlertDialogDescription>
-              {successModalMessage}
-            </AlertDialogDescription>
+            <AlertDialogDescription>{successModalMessage}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogAction onClick={handleCloseSuccessModalAndRedirect}>
-              OK
-            </AlertDialogAction>
+            <AlertDialogAction onClick={handleCloseSuccessModalAndRedirect}>OK</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
