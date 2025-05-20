@@ -42,8 +42,8 @@ export function NavigationItem(props: NavigationItemProps) {
           {/* The Button and inner <a> tag were causing nested links. */}
           {/* If a footer action is needed, it should not be a link if the card is already a link. */}
           {/* For now, removing the button to fix the primary issue of nested <a> tags. */}
-          {/* If a "Go to [title]" or similar CTA is desired, it can be simple text or a styled div */}
-          <span className="text-sm text-primary group-hover:underline">Przejdź do sekcji</span>
+          {/* If a "Go to [title]" or similar CTA is desired, it can be a simple text or a styled div */}
+          
         </CardFooter>
       </Card>
     </a>
