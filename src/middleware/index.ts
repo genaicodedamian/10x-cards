@@ -19,7 +19,13 @@ const PUBLIC_PATHS = [
 const AUTH_FLOW_PATHS = ["/login", "/register", "/forgot-password", "/reset-password"];
 
 // Ścieżki chronione, wymagające zalogowania
-const PROTECTED_PATHS = ["/dashboard"]; // Rozszerz o inne chronione ścieżki w aplikacji
+const PROTECTED_PATHS = [
+  "/dashboard",
+  "/generate-ai",
+  "/create-manual",
+  "/my-flashcards",
+  "/study-session", // Catches all /study-session/* routes
+];
 
 export const onRequest = defineMiddleware(async ({ locals, cookies, url, request, redirect }, next) => {
   // Inicjalizacja klienta Supabase dla każdego żądania

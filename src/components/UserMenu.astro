@@ -1,0 +1,23 @@
+---
+// src/components/UserMenu.astro
+import UserMenuReact from './UserMenuReact.tsx';
+
+export interface Props {
+  userEmail: string;
+}
+
+const { userEmail } = Astro.props;
+
+// For this minimal test, we assume if userEmail is passed, the user is authenticated enough to show email.
+const isAuthenticated = (
+  Astro.locals.user != null &&
+  typeof userEmail === 'string' &&
+  userEmail.trim() !== ''
+);
+---
+
+{isAuthenticated ? (
+  <UserMenuReact client:load userEmail={userEmail} />
+) : (
+  null
+)} 
