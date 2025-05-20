@@ -47,11 +47,12 @@ Nie są wymagane nowe typy, ponieważ komponent wykorzystuje wbudowane typy Supa
 ## 6. Zarządzanie stanem
 - Minimalny stan lokalny dla widoczności menu i dialogu
 - Wykorzystanie Supabase client do zarządzania stanem autentykacji
+- **Ważne**: Token JWT nie jest przechowywany po stronie frontendu. Stan sesji użytkownika jest zarządzany przez Supabase i nie jest bezpośrednio widoczny w Local Storage przeglądarki.
 
 ## 7. Integracja API
-Integracja z Supabase Auth:
+Integracja z Supabase Auth oraz API backendowym:
 - Wylogowanie: `supabase.auth.signOut()`
-- Usunięcie konta: `supabase.auth.admin.deleteUser(userId)`
+- Usunięcie konta: Wywołanie endpointa `DELETE /api/users/me`. Endpoint ten bezwzględnie usuwa zalogowanego użytkownika na podstawie jego sesji (tokenu JWT przekazanego w nagłówku `Authorization`), a nie danych z Local Storage. Szczegółowa dokumentacja endpointa znajduje się w `@delete-user-api.md`.
 
 ## 8. Interakcje użytkownika
 1. Otwarcie menu:
@@ -61,14 +62,14 @@ Integracja z Supabase Auth:
 
 2. Wylogowanie:
    - Kliknięcie opcji "Wyloguj"
-   - Wywołanie `supabase.auth.signOut()`
+   - Wywołanie `supabase.auth.signOut()`. Operacja ta powinna być bezwzględna i działać zgodnie z konfiguracją `supabaseClient` (patrz: `@supabaseClient.ts`).
    - Przekierowanie na stronę główną (`/`)
 
 3. Usunięcie konta:
    - Kliknięcie opcji "Usuń konto"
    - Wyświetlenie dialogu potwierdzenia
    - Po potwierdzeniu:
-     - Wywołanie `supabase.auth.admin.deleteUser()`
+     - Wywołanie endpointa `DELETE /api/users/me`. Endpoint ten bezwzględnie usuwa aktualnie zalogowanego użytkownika na podstawie jego sesji. Frontend jedynie wysyła żądanie, a serwer identyfikuje użytkownika na podstawie tokenu JWT.
      - Przekierowanie na stronę rejestracji (`/register`)
 
 ## 9. Warunki i walidacja
