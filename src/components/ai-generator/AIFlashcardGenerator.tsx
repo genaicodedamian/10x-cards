@@ -285,7 +285,8 @@ const AIFlashcardGenerator: React.FC = () => {
         setSaveMode(null);
         console.log("TODO: Redirect to /dashboard");
       } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : "Wystąpił nieznany błąd podczas zapisywania zestawu.";
+        const errorMessage =
+          error instanceof Error ? error.message : "Wystąpił nieznany błąd podczas zapisywania zestawu.";
         setApiErrorForSaveDialog(errorMessage);
         toast.error(errorMessage);
         console.error("Error saving set process:", error);
@@ -392,7 +393,10 @@ const AIFlashcardGenerator: React.FC = () => {
 
       {suggestions.length === 0 && !isLoadingSuggestions && generationMetadata && (
         <div className="text-center text-muted-foreground mt-8">
-          <p>Nie znaleziono propozycji dla podanego tekstu. Spróbuj zmodyfikować tekst wejściowy lub wygenerować ponownie.</p>
+          <p>
+            Nie znaleziono propozycji dla podanego tekstu. Spróbuj zmodyfikować tekst wejściowy lub wygenerować
+            ponownie.
+          </p>
         </div>
       )}
 
