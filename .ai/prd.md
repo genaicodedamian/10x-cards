@@ -217,7 +217,7 @@ Kryteria akceptacji:
 
 ## 6. Metryki sukcesu
 1. Efektywność generowania fiszek:
-   - 70% wygenerowanych przez AI fiszek jest akceptowanych przez użytkownika.
+   - 75% wygenerowanych przez AI fiszek jest akceptowanych przez użytkownika.
    - Użytkownicy tworzą co najmniej 75% fiszek z wykorzystaniem AI (w stosunku do wszystkich nowo dodanych fiszek).
 3. Zaangażowanie:
    - Monitorowanie liczby wygenerowanych fiszek i porównanie z liczbą zatwierdzonych do analizy jakości i użyteczności.
