@@ -155,7 +155,7 @@ The `package.json` file includes the following scripts:
 *   Editing individual flashcards within already saved sets (MVP focuses on creating sets; management of existing, saved flashcards is limited to deleting whole sets or initiating study sessions).
 
 ## Project Status
-The project is currently in active development, with a primary focus on delivering the Minimum Viable Product (MVP) features outlined above.
+The project is currently developed to its first MVP version.
 
 ## License
 
