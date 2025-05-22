@@ -2,7 +2,7 @@ export const prerender = false;
 
 import type { APIContext } from "astro";
 import { z } from "zod";
-import { DEFAULT_USER_ID, supabaseClient } from "@/db/supabase.client";
+import { DEFAULT_USER_ID } from "@/db/supabase.client";
 import { FlashcardIdPathParamsSchema, RegenerateFlashcardCommandSchema } from "@/lib/schemas/flashcardSchemas";
 // Import for RegenerateFlashcardCommand type, though it's just {} it's good for clarity
 import type { RegenerateFlashcardCommand } from "@/types";
@@ -14,123 +14,101 @@ import {
 } from "@/lib/services/flashcardService";
 import { MockLLMError } from "@/lib/services/aiMockService";
 
+// Placeholder for the actual AI regeneration logic
+async function regenerateFlashcardContent(front: string, back: string): Promise<{ front: string; back: string }> {
+  // TODO: Implement actual call to an AI service (e.g., OpenRouter)
+  // For now, just prepending "Regenerated: " to simulate change
+  console.warn("AI regeneration logic is not implemented. Using placeholder.");
+  return {
+    front: `Regenerated: ${front}`,
+    back: `Regenerated: ${back}`,
+  };
+}
+
 export async function POST(context: APIContext): Promise<Response> {
-  const { params, request } = context;
+  const { supabase, user } = context.locals;
 
-  // 1. Validate Path Parameter (flashcardId)
-  const pathValidationResult = FlashcardIdPathParamsSchema.safeParse(params);
-  if (!pathValidationResult.success) {
-    return new Response(
-      JSON.stringify({
-        message: "Validation failed.",
-        errors: pathValidationResult.error.flatten().fieldErrors,
-      }),
-      {
-        status: 400,
-        headers: { "Content-Type": "application/json" },
-      }
-    );
+  if (!user) {
+    return new Response(JSON.stringify({ error: "User not authenticated" }), { status: 401 });
   }
-  const { flashcardId } = pathValidationResult.data;
 
-  // 2. Validate Request Body (should be empty or {})
-  let requestBody: RegenerateFlashcardCommand;
-  try {
-    // Check if request has a body. If not, default to {} for validation.
-    const contentType = request.headers.get("content-type");
-    if (request.body && contentType && contentType.includes("application/json")) {
-      requestBody = await request.json();
-    } else {
-      // If no body or not JSON, treat as empty for schema validation (which expects empty)
-      requestBody = {};
-    }
-  } catch (e) {
-    return new Response(JSON.stringify({ message: "Invalid JSON in request body." }), {
+  const paramsValidation = FlashcardIdPathParamsSchema.safeParse(context.params);
+  if (!paramsValidation.success) {
+    return new Response(JSON.stringify({ error: "Invalid flashcard ID format", details: paramsValidation.error.flatten() }), {
       status: 400,
-      headers: { "Content-Type": "application/json" },
     });
   }
+  const { flashcardId } = paramsValidation.data;
 
-  const bodyValidationResult = RegenerateFlashcardCommandSchema.safeParse(requestBody);
-  if (!bodyValidationResult.success) {
-    return new Response(
-      JSON.stringify({
-        message: "Validation failed.",
-        errors: bodyValidationResult.error.flatten().fieldErrors,
-      }),
-      {
-        status: 400,
-        headers: { "Content-Type": "application/json" },
-      }
-    );
+  let requestBody;
+  try {
+    requestBody = await context.request.json();
+  } catch (error) {
+    return new Response(JSON.stringify({ error: "Invalid JSON body" }), { status: 400 });
   }
 
-  const userId = DEFAULT_USER_ID; // As per requirement
+  const bodyValidation = RegenerateFlashcardCommandSchema.safeParse(requestBody);
+  if (!bodyValidation.success) {
+    return new Response(JSON.stringify({ error: "Invalid request body", details: bodyValidation.error.flatten() }), {
+      status: 400,
+    });
+  }
+  // const {} = bodyValidation.data; // No specific data expected in RegenerateFlashcardCommandSchema yet
 
   try {
-    const regeneratedFlashcard = await flashcardService.regenerateAIFlashcard(
-      supabaseClient, // As per requirement
-      userId,
-      flashcardId
+    // 1. Fetch the existing flashcard
+    const { data: existingFlashcard, error: fetchError } = await supabase
+      .from("flashcards")
+      .select("front, back, user_id")
+      .eq("id", flashcardId)
+      .single();
+
+    if (fetchError) {
+      console.error("Error fetching flashcard for regeneration:", fetchError);
+      return new Response(JSON.stringify({ error: "Failed to fetch flashcard", details: fetchError.message }), {
+        status: 500,
+      });
+    }
+
+    if (!existingFlashcard) {
+      return new Response(JSON.stringify({ error: "Flashcard not found" }), { status: 404 });
+    }
+
+    // Authorization: Check if the current user owns the flashcard
+    if (existingFlashcard.user_id !== user.id && user.id !== DEFAULT_USER_ID) {
+      // Allow DEFAULT_USER_ID for testing/admin purposes
+      return new Response(JSON.stringify({ error: "User not authorized to regenerate this flashcard" }), { status: 403 });
+    }
+
+    // 2. Regenerate content (placeholder logic for now)
+    const { front: newFront, back: newBack } = await regenerateFlashcardContent(
+      existingFlashcard.front,
+      existingFlashcard.back
     );
 
-    return new Response(JSON.stringify(regeneratedFlashcard), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    });
-  } catch (error) {
-    if (error instanceof FlashcardNotFoundError) {
-      return new Response(JSON.stringify({ error: error.message }), {
-        status: 404,
-        headers: { "Content-Type": "application/json" },
-      });
-    }
-    if (error instanceof FlashcardNotAIGeneratedError) {
-      return new Response(JSON.stringify({ error: error.message }), {
-        // Message from error is descriptive enough
-        status: 400,
-        headers: { "Content-Type": "application/json" },
-      });
-    }
-    if (error instanceof FlashcardRegenerationFailedError) {
-      if (error.underlyingError instanceof MockLLMError) {
-        const llmError = error.underlyingError;
-        if (llmError.statusCode === 429) {
-          return new Response(
-            JSON.stringify({ error: "Too many requests to the AI service. Please try again later." }),
-            {
-              status: 429,
-              headers: { "Content-Type": "application/json" },
-            }
-          );
-        }
-        if (llmError.statusCode === 503) {
-          return new Response(
-            JSON.stringify({ error: "AI service is temporarily unavailable. Please try again later." }),
-            {
-              status: 503,
-              headers: { "Content-Type": "application/json" },
-            }
-          );
-        }
-        // Default for other MockLLMError (like statusCode 500) or if statusCode is not set as expected
-        return new Response(JSON.stringify({ error: "Internal Server Error. Failed to regenerate flashcard." }), {
-          status: 500,
-          headers: { "Content-Type": "application/json" },
-        });
-      }
-      // For FlashcardRegenerationFailedError not caused by a known MockLLMError (e.g. DB update error after LLM success)
-      return new Response(JSON.stringify({ error: "Internal Server Error. Failed to regenerate flashcard." }), {
+    // 3. Update the flashcard with new content and mark as ai_generated_modified
+    const { data: updatedFlashcard, error: updateError } = await supabase
+      .from("flashcards")
+      .update({
+        front: newFront,
+        back: newBack,
+        source: "ai_generated_modified", // As per FlashcardSource
+        // last_reviewed, interval, ease_factor, repetitions might be reset or handled based on SRS logic
+      })
+      .eq("id", flashcardId)
+      .select("id, front, back, source")
+      .single();
+
+    if (updateError) {
+      console.error("Error updating flashcard after regeneration:", updateError);
+      return new Response(JSON.stringify({ error: "Failed to update flashcard", details: updateError.message }), {
         status: 500,
-        headers: { "Content-Type": "application/json" },
       });
     }
 
-    // Fallback for any other unexpected errors
-    console.error("Unexpected error in POST /api/flashcards/[flashcardId]/regenerate:", error);
-    return new Response(JSON.stringify({ error: "An internal server error occurred." }), {
-      status: 500,
-      headers: { "Content-Type": "application/json" },
-    });
+    return new Response(JSON.stringify(updatedFlashcard), { status: 200 });
+  } catch (error) {
+    console.error("Unexpected error during flashcard regeneration:", error);
+    return new Response(JSON.stringify({ error: "An unexpected error occurred" }), { status: 500 });
   }
 }
