@@ -24,6 +24,29 @@ jobs:
 
       - name: Run tests
         run: npm test
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          PUBLIC_SUPABASE_URL: ${{ secrets.PUBLIC_SUPABASE_URL }}
+          PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.PUBLIC_SUPABASE_ANON_KEY }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          E2E_USERNAME_ID: ${{ secrets.E2E_USERNAME_ID }}
+          E2E_USERNAME: ${{ secrets.E2E_USERNAME }}
+          E2E_PASSWORD: ${{ secrets.E2E_PASSWORD }}
+
+      - name: Run E2E tests
+        run: npm run e2e
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          PUBLIC_SUPABASE_URL: ${{ secrets.PUBLIC_SUPABASE_URL }}
+          PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.PUBLIC_SUPABASE_ANON_KEY }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          E2E_USERNAME_ID: ${{ secrets.E2E_USERNAME_ID }}
+          E2E_USERNAME: ${{ secrets.E2E_USERNAME }}
+          E2E_PASSWORD: ${{ secrets.E2E_PASSWORD }}
 
       - name: Build project
         run: npm run build 
