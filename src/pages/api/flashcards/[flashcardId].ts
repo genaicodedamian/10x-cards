@@ -3,7 +3,7 @@ export const prerender = false;
 import type { APIContext, APIRoute } from "astro";
 import { z } from "zod";
 // import type { FlashcardDto } from "@/types"; // Removed unused import
-import { supabaseClient, DEFAULT_USER_ID } from "@/db/supabase.client"; // Using direct import and DEFAULT_USER_ID as requested
+import { DEFAULT_USER_ID } from "@/db/supabase.client"; // Keep this if DEFAULT_USER_ID is still needed
 import { flashcardService } from "@/lib/services/flashcardService"; // Import the service with correct casing
 import type { UpdateFlashcardCommand } from "../../../types";
 import { UpdateFlashcardCommandSchema } from "@/lib/schemas/flashcardSchemas"; // Import the schema
@@ -18,10 +18,10 @@ const PathParamsSchema = z.object({
   flashcardId: z.string().uuid({ message: "Invalid flashcard ID format." }),
 });
 
-export async function GET({ params }: APIContext) {
+export async function GET(context: APIContext): Promise<Response> {
+  const { supabase, user } = context.locals; // Get supabase and user from context.locals
   // Step 3: Pobierz flashcardId z params (częściowo)
-  // Step 3: Pobierz klienta Supabase (supabaseClient) i dane użytkownika (DEFAULT_USER_ID) (częściowo)
-  const { flashcardId: rawFlashcardId } = params;
+  const { flashcardId: rawFlashcardId } = context.params;
 
   // Step 4: Walidacja flashcardId
   const flashcardIdValidation = FlashcardIdSchema.safeParse(rawFlashcardId);
@@ -44,7 +44,7 @@ export async function GET({ params }: APIContext) {
 
   try {
     // Step 7: Wywołanie serwisu z API route
-    const flashcard = await flashcardService.getFlashcardById(supabaseClient, flashcardId, userId);
+    const flashcard = await flashcardService.getFlashcardById(supabase, flashcardId, userId);
 
     if (!flashcard) {
       return new Response(JSON.stringify({ error: "Flashcard not found" }), {
@@ -71,6 +71,7 @@ export async function GET({ params }: APIContext) {
 }
 
 export async function PUT(context: APIContext): Promise<Response> {
+  const { supabase, user } = context.locals; // Get supabase and user from context.locals
   const { params, request } = context; // Removed unused 'locals' from destructuring
 
   // 1. Authentication (Stubbed for now - using DEFAULT_USER_ID)
@@ -82,7 +83,7 @@ export async function PUT(context: APIContext): Promise<Response> {
   // const client = locals.supabase; // Authenticated Supabase client from middleware
 
   const userId = DEFAULT_USER_ID; // Using default user ID as per current requirement
-  const client = supabaseClient; // Using imported client as per current requirement
+  const client = supabase; // Using imported client as per current requirement
 
   // 2. Validate flashcardId path parameter
   const flashcardIdValidation = FlashcardIdSchema.safeParse(params.flashcardId);
@@ -169,10 +170,11 @@ export async function PUT(context: APIContext): Promise<Response> {
 }
 
 export const DELETE: APIRoute = async (context: APIContext) => {
+  const { supabase, user } = context.locals; // Get supabase and user from context.locals
   const { params } = context;
 
   // Use imported supabaseClient and DEFAULT_USER_ID as per project requirements
-  const supabase = supabaseClient;
+  const supabase = supabase;
   const userId = DEFAULT_USER_ID;
 
   // Validate path parameter flashcardId
