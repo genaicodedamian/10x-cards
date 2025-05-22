@@ -174,7 +174,6 @@ export const DELETE: APIRoute = async (context: APIContext) => {
   const { params } = context;
 
   // Use imported supabaseClient and DEFAULT_USER_ID as per project requirements
-  const supabase = supabase;
   const userId = DEFAULT_USER_ID;
 
   // Validate path parameter flashcardId
