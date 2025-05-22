@@ -83,7 +83,7 @@ const FlashcardFormDialog: React.FC<FlashcardFormDialogProps> = ({ isOpen, onClo
         }
       }}
     >
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[425px]" data-testid="flashcard-form-dialog">
         <DialogHeader>
           <DialogTitle>{dialogTitle}</DialogTitle>
           <DialogDescription>Wypełnij przód i tył fiszki. Kliknij zapisz, gdy skończysz.</DialogDescription>
@@ -100,6 +100,7 @@ const FlashcardFormDialog: React.FC<FlashcardFormDialogProps> = ({ isOpen, onClo
                   {...register("front")}
                   placeholder="Pytanie lub termin"
                   className={errors.front ? "border-red-500" : ""}
+                  data-testid="flashcard-front-input"
                 />
                 {errors.front && <p className="text-xs text-red-500 mt-1">{errors.front.message}</p>}
               </div>
@@ -115,13 +116,14 @@ const FlashcardFormDialog: React.FC<FlashcardFormDialogProps> = ({ isOpen, onClo
                   placeholder="Odpowiedź lub definicja"
                   className={`${errors.back ? "border-red-500" : ""} resize-none`}
                   style={{ maxHeight: "200px", overflowY: "auto" }}
+                  data-testid="flashcard-back-input"
                 />
                 {errors.back && <p className="text-xs text-red-500 mt-1">{errors.back.message}</p>}
               </div>
             </div>
           </div>
           <DialogFooter>
-            <Button type="submit" disabled={!isValid || isSubmitting} className="mr-2">
+            <Button type="submit" disabled={!isValid || isSubmitting} className="mr-2" data-testid="save-flashcard-button">
               {isSubmitting ? "Zapisywanie..." : buttonText}
             </Button>
             <DialogClose asChild>

@@ -4,6 +4,7 @@
   "version": "0.0.1",
   "scripts": {
     "dev": "astro dev",
+    "dev:e2e": "astro dev --mode test",
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
@@ -61,6 +62,7 @@
     "@typescript-eslint/parser": "8.28.0",
     "@vitejs/plugin-react": "^4.4.1",
     "@vitest/ui": "^3.1.4",
+    "dotenv": "^16.5.0",
     "eslint": "9.23.0",
     "eslint-config-prettier": "10.1.1",
     "eslint-import-resolver-typescript": "4.2.5",

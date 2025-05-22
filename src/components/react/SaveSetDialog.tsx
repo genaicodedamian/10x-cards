@@ -58,7 +58,7 @@ const SaveSetDialog: React.FC<SaveSetDialogProps> = ({ isOpen, onClose, onSave, 
 
   return (
     <Dialog open={isOpen} onOpenChange={(openState) => !openState && onClose()}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[425px]" data-testid="save-set-dialog">
         <DialogHeader>
           <DialogTitle>Zapisz zestaw fiszek</DialogTitle>
           <DialogDescription>
@@ -77,6 +77,7 @@ const SaveSetDialog: React.FC<SaveSetDialogProps> = ({ isOpen, onClose, onSave, 
                   {...register("setName")}
                   placeholder="Np. Słówka z rozdziału 5"
                   className={errors.setName ? "border-red-500" : ""}
+                  data-testid="set-name-input"
                 />
                 {errors.setName && <p className="text-xs text-red-500 mt-1">{errors.setName.message}</p>}
               </div>
@@ -88,7 +89,7 @@ const SaveSetDialog: React.FC<SaveSetDialogProps> = ({ isOpen, onClose, onSave, 
                 Anuluj
               </Button>
             </DialogClose>
-            <Button type="submit" disabled={!isValid || isLoading}>
+            <Button type="submit" disabled={!isValid || isLoading} data-testid="confirm-save-set-button">
               {isLoading ? 'Zapisywanie...' : 'Zapisz zestaw'}
             </Button>
           </DialogFooter>

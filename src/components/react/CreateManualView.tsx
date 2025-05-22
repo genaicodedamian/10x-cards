@@ -78,7 +78,7 @@ const CreateManualView: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-testid="create-manual-view">
       <Toaster richColors />
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">Stwórz Fiszki Manualnie</h1>
@@ -88,8 +88,8 @@ const CreateManualView: React.FC = () => {
       </div>
 
       <div className="flex space-x-4">
-        <Button onClick={openNewFlashcardModal}>+ Stwórz nową fiszkę</Button>
-        <Button onClick={openSaveSetModal} disabled={tempFlashcards.length === 0 || isLoading}>
+        <Button onClick={openNewFlashcardModal} data-testid="create-new-flashcard-button">+ Stwórz nową fiszkę</Button>
+        <Button onClick={openSaveSetModal} disabled={tempFlashcards.length === 0 || isLoading} data-testid="save-set-button">
           {isLoading && isSaveSetModalOpen ? "Zapisywanie zestawu..." : "Zapisz zestaw fiszek"}
         </Button>
       </div>
@@ -133,7 +133,7 @@ const CreateManualView: React.FC = () => {
             <AlertDialogDescription>{successModalMessage}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogAction onClick={handleCloseSuccessModalAndRedirect}>OK</AlertDialogAction>
+            <AlertDialogAction onClick={handleCloseSuccessModalAndRedirect} data-testid="success-modal-ok-button">OK</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
