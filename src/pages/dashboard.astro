@@ -1,6 +1,7 @@
 ---
 import Layout from "@/layouts/Layout.astro";
-import { NavigationItem } from "@/components/dashboard/NavigationItem.tsx"; // Poprawiony import
+import { NavigationItem } from "@/components/dashboard/NavigationItem.tsx";
+import { WelcomeModal } from "@/components/dashboard/WelcomeModal.tsx";
 
 // Dodatkowe zabezpieczenie: Middleware powinno już to obsłużyć,
 // ale dla pewności możemy sprawdzić Astro.locals.user
@@ -8,7 +9,12 @@ if (!Astro.locals.user) {
   return Astro.redirect("/login");
 }
 
-const userName = Astro.locals.user?.email?.split("@")[0] || "Użytkowniku";
+const user = Astro.locals.user;
+const userName = user?.email?.split("@")[0] || "Użytkowniku";
+
+// Sprawdź, czy użytkownik widział już modal
+// user_metadata może nie istnieć lub flaga może nie być ustawiona (undefined traktujemy jako false)
+const hasSeenWelcomeModal = !!user?.user_metadata?.has_seen_welcome_modal;
 
 const navigationItems = [
   {
@@ -48,6 +54,23 @@ const navigationItems = [
       }
     </div>
   </main>
+
+  {
+    !hasSeenWelcomeModal && (
+      <WelcomeModal
+        client:load
+        userName={userName}
+        isOpenInitially={true}
+        onClose={() => {
+          // Ta funkcja jest wywoływana, gdy modal się zamknie.
+          // Możemy tu potencjalnie zarządzać stanem po stronie klienta,
+          // aby modal nie pojawił się ponownie bez odświeżenia strony,
+          // ale główna logika opiera się na `hasSeenWelcomeModal` z serwera.
+          // Na razie pozostawiamy to puste, ponieważ komponent sam obsługuje swoje zamknięcie.
+        }}
+      />
+    )
+  }
 </Layout>
 
 <style>

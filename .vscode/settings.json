@@ -31,5 +31,8 @@
     "typescript",
     "typescriptreact",
     "astro"
+  ],
+  "github-actions.workflows.pinned.workflows": [
+    ".github/workflows/ci.yml"
   ]
 }
