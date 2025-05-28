@@ -3,7 +3,6 @@ description:
 globs: 
 alwaysApply: false
 ---
-
 ## Github Action Rules
 
 - Check if `package.json` exists in project root and summarize key scripts

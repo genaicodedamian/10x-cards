@@ -13,10 +13,16 @@ export default defineConfig({
   server: { port: 3000 },
   vite: {
     plugins: [tailwindcss()],
+    ssr: {
+      // Add react-dom/server as an external module,
+      // so it's not bundled during SSR
+      // This can sometimes help with React 18+ SSR issues in non-node environments
+      external: ["react-dom/server"],
+      // Ensure that it's not treated as a CJS module if it does get processed
+      noExternal: ["react-dom/server.browser"],
+    },
   },
-  adapter: cloudflare({
-    mode: "directory",
-  }),
+  adapter: cloudflare(),
   experimental: { session: true },
   env: {
     schema: {
