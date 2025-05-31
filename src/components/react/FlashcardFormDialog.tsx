@@ -1,7 +1,5 @@
 import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -17,12 +15,10 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import type { TemporaryFlashcard } from "@/types";
 
-const flashcardSchema = z.object({
-  front: z.string().min(1, "Przód fiszki jest wymagany.").max(200, "Przód fiszki może mieć maksymalnie 200 znaków."),
-  back: z.string().min(1, "Tył fiszki jest wymagany.").max(500, "Tył fiszki może mieć maksymalnie 500 znaków."),
-});
-
-type FlashcardFormData = z.infer<typeof flashcardSchema>;
+type FlashcardFormData = {
+  front: string;
+  back: string;
+};
 
 interface FlashcardFormDialogProps {
   isOpen: boolean;
@@ -37,10 +33,8 @@ const FlashcardFormDialog: React.FC<FlashcardFormDialogProps> = ({ isOpen, onClo
     register,
     handleSubmit,
     reset,
-    formState: { errors, isValid, isSubmitting },
+    formState: { isSubmitting },
   } = useForm<FlashcardFormData>({
-    resolver: zodResolver(flashcardSchema),
-    mode: "onBlur", // Validate on blur for better UX
     defaultValues: {
       front: "",
       back: "",
@@ -54,10 +48,6 @@ const FlashcardFormDialog: React.FC<FlashcardFormDialogProps> = ({ isOpen, onClo
       } else {
         reset({ front: "", back: "" }); // Reset for 'create' mode
       }
-    } else {
-      // Optionally, you can also reset when the dialog is explicitly closed
-      // This might be useful if the dialog state is not fully unmounted/remounted by Shadcn/ui Dialog
-      // reset({ front: '', back: '' });
     }
   }, [isOpen, mode, initialData, reset]);
 
@@ -66,6 +56,7 @@ const FlashcardFormDialog: React.FC<FlashcardFormDialogProps> = ({ isOpen, onClo
   }
 
   const onValidSubmit = (data: FlashcardFormData) => {
+    console.log("onValidSubmit called with data:", data); // Debug log
     onSubmit(data, initialData?.id);
   };
 
@@ -99,10 +90,8 @@ const FlashcardFormDialog: React.FC<FlashcardFormDialogProps> = ({ isOpen, onClo
                   id="front-input"
                   {...register("front")}
                   placeholder="Pytanie lub termin"
-                  className={errors.front ? "border-red-500" : ""}
                   data-testid="flashcard-front-input"
                 />
-                {errors.front && <p className="text-xs text-red-500 mt-1">{errors.front.message}</p>}
               </div>
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
@@ -114,16 +103,15 @@ const FlashcardFormDialog: React.FC<FlashcardFormDialogProps> = ({ isOpen, onClo
                   id="back-input"
                   {...register("back")}
                   placeholder="Odpowiedź lub definicja"
-                  className={`${errors.back ? "border-red-500" : ""} resize-none`}
+                  className="resize-none"
                   style={{ maxHeight: "200px", overflowY: "auto" }}
                   data-testid="flashcard-back-input"
                 />
-                {errors.back && <p className="text-xs text-red-500 mt-1">{errors.back.message}</p>}
               </div>
             </div>
           </div>
           <DialogFooter>
-            <Button type="submit" disabled={!isValid || isSubmitting} className="mr-2" data-testid="save-flashcard-button">
+            <Button type="submit" disabled={isSubmitting} className="mr-2" data-testid="save-flashcard-button">
               {isSubmitting ? "Zapisywanie..." : buttonText}
             </Button>
             <DialogClose asChild>

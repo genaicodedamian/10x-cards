@@ -50,6 +50,7 @@ const CreateManualView: React.FC = () => {
   }, [error, clearError]);
 
   const handleFlashcardSubmit = (data: { front: string; back: string }, id?: string) => {
+    console.log("handleFlashcardSubmit called with:", { data, id }); // Debug log
     if (id) {
       updateFlashcard(id, data);
       toast.success("Fiszka zaktualizowana pomyślnie!");

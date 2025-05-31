@@ -57,11 +57,13 @@ export const useCreateManualViewStore = create<CreateManualViewState>()(
     },
     closeFlashcardFormModal: () => set({ isFlashcardFormModalOpen: false, editingFlashcard: null }),
     addFlashcard: (data) => {
+      console.log("addFlashcard called with data:", data);
       const newFlashcard: TemporaryFlashcard = {
         id: crypto.randomUUID(),
         front: data.front,
         back: data.back,
       };
+      console.log("Created new flashcard:", newFlashcard);
       set((state) => ({ tempFlashcards: [...state.tempFlashcards, newFlashcard] }));
     },
     updateFlashcard: (flashcardId, data) => {
