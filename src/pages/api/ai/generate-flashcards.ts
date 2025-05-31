@@ -20,6 +20,36 @@ export const POST: APIRoute = async ({ request, locals }) => {
   const userId = DEFAULT_USER_ID;
   const { supabase } = locals; // Still need supabase from locals for potential DB operations like error logging
 
+  // Get the OpenRouter API key from the runtime environment
+  let openRouterApiKey: string | undefined;
+  
+  try {
+    // In Cloudflare Pages, environment variables are accessed through locals.runtime.env
+    openRouterApiKey = (locals as any).runtime?.env?.OPENROUTER_API_KEY;
+  } catch (error) {
+    console.error("Failed to access runtime environment:", error);
+  }
+
+  // Fallback to import.meta.env for local development
+  if (!openRouterApiKey) {
+    try {
+      openRouterApiKey = import.meta.env.OPENROUTER_API_KEY;
+    } catch (error) {
+      console.error("Failed to access import.meta.env:", error);
+    }
+  }
+
+  if (!openRouterApiKey) {
+    console.error("OpenRouter API Key is not available in runtime environment or import.meta.env");
+    return new Response(
+      JSON.stringify({ message: "Internal Server Error: API configuration missing." }),
+      {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+  }
+
   // 3. Walidacja żądania
   const AiGenerateFlashcardsCommandSchema = z.object({
     text: z
@@ -50,7 +80,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
   }
 
   try {
-    const responseDto: AIGenerateFlashcardsResponseDto = await generateFlashcardSuggestions(command.text, userId);
+    const responseDto: AIGenerateFlashcardsResponseDto = await generateFlashcardSuggestions(command.text, userId, openRouterApiKey);
     return new Response(JSON.stringify(responseDto), {
       status: 200,
       headers: { "Content-Type": "application/json" },

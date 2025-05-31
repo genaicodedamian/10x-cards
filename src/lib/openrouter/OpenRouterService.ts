@@ -21,36 +21,20 @@ export class OpenRouterService {
   private readonly requestTimeoutMs: number;
 
   constructor(config?: Partial<OpenRouterServiceConfig>) {
-    // Handle both local development (import.meta.env) and Cloudflare Workers (process.env)
-    let apiKeyFromEnv: string | undefined;
-    
-    try {
-      // Try import.meta.env first (local development)
-      apiKeyFromEnv = import.meta.env.OPENROUTER_API_KEY;
-    } catch {
-      // Fallback to process.env (Cloudflare Workers)
-      apiKeyFromEnv = process.env.OPENROUTER_API_KEY;
-    }
-    
-    // If still undefined, try process.env as backup
-    if (!apiKeyFromEnv) {
-      apiKeyFromEnv = process.env.OPENROUTER_API_KEY;
-    }
-    
-    this.apiKey = config?.apiKey || apiKeyFromEnv || ""; // Initialize with empty string if undefined
+    // For Cloudflare Pages, the API key must be passed explicitly from the runtime context
+    // since environment variables are only available through Astro.locals.runtime.env
+    this.apiKey = config?.apiKey || "";
     if (!this.apiKey) {
       console.error(
-        "OpenRouter API Key is not configured. Please set OPENROUTER_API_KEY environment variable."
+        "OpenRouter API Key is not configured. Please pass the API key explicitly in the config."
       );
-      // Log the value retrieved to help debug
-      console.error(`Final apiKeyFromEnv value: '${apiKeyFromEnv}'`);
       throw new Error("OpenRouter API Key is missing.");
     }
 
     this.baseUrl = config?.baseUrl || "https://openrouter.ai/api/v1";
     this.defaultModel = config?.defaultModel;
-    this.httpReferer = config?.httpReferer || process.env.YOUR_SITE_URL;
-    this.siteName = config?.siteName || process.env.YOUR_SITE_NAME;
+    this.httpReferer = config?.httpReferer;
+    this.siteName = config?.siteName;
     this.maxRetries = config?.defaultMaxRetries ?? 3;
     this.requestTimeoutMs = config?.defaultTimeoutMs ?? 30000; // 30 sekund
   }

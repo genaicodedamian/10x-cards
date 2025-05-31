@@ -11,8 +11,6 @@ async function sha256(text: string): Promise<string> {
   return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
-const openRouterService = new OpenRouterService();
-
 const FLASHCARD_SUGGESTION_SCHEMA: JsonSchema = {
   name: "flashcards",
   strict: true,
@@ -42,15 +40,20 @@ const FLASHCARD_SUGGESTION_SCHEMA: JsonSchema = {
  *
  * @param text The source text to generate flashcards from.
  * @param userId The ID of the user requesting the generation.
+ * @param apiKey The OpenRouter API key to use for the request.
  * @returns A promise that resolves to an AIGenerateFlashcardsResponseDto object.
  */
 export async function generateFlashcardSuggestions(
   text: string,
-  userId: string
+  userId: string,
+  apiKey: string
 ): Promise<AIGenerateFlashcardsResponseDto> {
   const startTime = Date.now();
 
   console.log(`Generating AI suggestions for user: ${userId} and text starting with: ${text.substring(0, 30)}...`);
+
+  // Create OpenRouterService instance with the provided API key
+  const openRouterService = new OpenRouterService({ apiKey });
 
   const source_text_length = text.length;
   const source_text_hash = await sha256(text);
