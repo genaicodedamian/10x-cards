@@ -21,6 +21,7 @@
     "e2e:codegen": "playwright codegen"
   },
   "dependencies": {
+    "@astrojs/check": "^0.9.4",
     "@astrojs/cloudflare": "^12.5.3",
     "@astrojs/react": "4.2.2",
     "@astrojs/sitemap": "3.3.0",
@@ -49,6 +50,7 @@
     "sonner": "^2.0.3",
     "tailwind-merge": "^3.3.0",
     "tailwindcss": "4.0.17",
+    "typescript": "^5.8.3",
     "zod": "^3.24.4",
     "zustand": "^5.0.4"
   },

@@ -1,11 +1,14 @@
 import type { AIGenerateFlashcardsResponseDto, FlashcardSuggestionDto, ValidationStatus } from "../../types";
-import crypto from "crypto"; // Using Node.js crypto for MD5
 import { OpenRouterService } from "../openrouter/OpenRouterService";
 import type { JsonSchema, Message } from "../openrouter/types";
 
-// Helper for MD5 Hashing using Node.js crypto
-function md5(text: string): string {
-  return crypto.createHash("md5").update(text).digest("hex");
+// Helper for SHA-256 Hashing using Web Crypto API (compatible with Cloudflare Workers)
+async function sha256(text: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(text);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
 const openRouterService = new OpenRouterService();
@@ -50,7 +53,7 @@ export async function generateFlashcardSuggestions(
   console.log(`Generating AI suggestions for user: ${userId} and text starting with: ${text.substring(0, 30)}...`);
 
   const source_text_length = text.length;
-  const source_text_hash = md5(text);
+  const source_text_hash = await sha256(text);
 
   const messages: Message[] = [
     {

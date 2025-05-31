@@ -3,13 +3,16 @@ import { z } from "zod";
 import type { AIGenerateFlashcardsCommand, AIGenerateFlashcardsResponseDto } from "../../../types";
 import { DEFAULT_USER_ID } from "../../../db/supabase.client";
 import { generateFlashcardSuggestions } from "../../../lib/services/aiGenerationService";
-import crypto from "crypto"; // Import crypto for MD5 hashing in error logging
 
 export const prerender = false;
 
-// Helper function for MD5 hashing, consistent with the service
-function md5(text: string): string {
-  return crypto.createHash("md5").update(text).digest("hex");
+// Helper function for SHA-256 hashing using Web Crypto API (compatible with Cloudflare Workers)
+async function sha256(text: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(text);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
 export const POST: APIRoute = async ({ request, locals }) => {
@@ -61,7 +64,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
     if (command && command.text) {
       try {
-        final_source_text_hash = md5(command.text);
+        final_source_text_hash = await sha256(command.text);
         final_source_text_length = command.text.length;
       } catch (hashError) {
         console.error("[API Route Error] Could not compute hash/length for error log:", hashError);
@@ -71,7 +74,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
     const errorLog = {
       user_id: userId,
-      model: "mock-generator-v0.1-md5", // Renamed from model_used
+      model: "mock-generator-v0.1-sha256", // Renamed from model_used
       source_text_hash: final_source_text_hash, // Ensured string
       source_text_length: final_source_text_length, // Ensured number
       error_code: "MOCK_GENERATION_SERVICE_ERROR",

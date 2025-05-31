@@ -25,30 +25,46 @@ const createFlashcardSetSchema = z.object({
 });
 
 export async function POST(context: APIContext): Promise<Response> {
+  console.log("[POST /api/flashcard-sets] Starting request processing");
+  
   const { supabase, user } = context.locals;
+
+  // Log environment variables (safely)
+  console.log("[POST /api/flashcard-sets] Environment check:", {
+    hasPublicSupabaseUrl: !!import.meta.env.PUBLIC_SUPABASE_URL,
+    hasSupabaseUrl: !!import.meta.env.SUPABASE_URL,
+    hasPublicSupabaseKey: !!import.meta.env.PUBLIC_SUPABASE_ANON_KEY,
+    hasSupabaseKey: !!import.meta.env.SUPABASE_KEY,
+    availableEnvVars: Object.keys(import.meta.env).filter(key => key.includes('SUPABASE'))
+  });
 
   // Ensure Supabase client is available
   if (!supabase) {
-    console.error("Supabase client not found in context.locals for POST /api/flashcard-sets");
+    console.error("[POST /api/flashcard-sets] Supabase client not found in context.locals");
     return new Response(JSON.stringify({ message: "Internal Server Error: Supabase client missing." }), {
       status: 500,
       headers: { "Content-Type": "application/json" },
     });
   }
+  console.log("[POST /api/flashcard-sets] Supabase client found");
 
   // Ensure user is authenticated
   if (!user) {
+    console.error("[POST /api/flashcard-sets] User not authenticated");
     return new Response(JSON.stringify({ message: "Unauthorized: User not authenticated." }), {
       status: 401,
       headers: { "Content-Type": "application/json" },
     });
   }
   const userId = user.id;
+  console.log("[POST /api/flashcard-sets] User authenticated:", { userId, userEmail: user.email });
 
   let rawBody;
   try {
     rawBody = await context.request.json();
+    console.log("[POST /api/flashcard-sets] Request body parsed:", rawBody);
   } catch (error) {
+    console.error("[POST /api/flashcard-sets] Failed to parse JSON:", error);
     return new Response(JSON.stringify({ message: "Invalid JSON format in request body." }), {
       status: 400,
       headers: { "Content-Type": "application/json" },
@@ -58,6 +74,7 @@ export async function POST(context: APIContext): Promise<Response> {
   const validationResult = createFlashcardSetSchema.safeParse(rawBody);
 
   if (!validationResult.success) {
+    console.error("[POST /api/flashcard-sets] Validation failed:", validationResult.error.flatten().fieldErrors);
     return new Response(
       JSON.stringify({
         message: "Validation failed.",
@@ -68,8 +85,10 @@ export async function POST(context: APIContext): Promise<Response> {
   }
 
   const validatedData = validationResult.data as CreateFlashcardSetCommand;
+  console.log("[POST /api/flashcard-sets] Data validated successfully:", validatedData);
 
   try {
+    console.log("[POST /api/flashcard-sets] Calling flashcardSetService.createSet");
     const { data: newSet, error: serviceError } = await flashcardSetService.createSet(
       userId,
       validatedData,
@@ -77,7 +96,7 @@ export async function POST(context: APIContext): Promise<Response> {
     );
 
     if (serviceError) {
-      console.error("Service error in POST /api/flashcard-sets:", serviceError);
+      console.error("[POST /api/flashcard-sets] Service error:", serviceError);
       // Check for unique constraint violation (code 23505 for PostgreSQL)
       if (serviceError.code === "23505") {
         return new Response(
@@ -93,6 +112,7 @@ export async function POST(context: APIContext): Promise<Response> {
     }
 
     if (newSet) {
+      console.log("[POST /api/flashcard-sets] Set created successfully:", { setId: newSet.id, setName: newSet.name });
       return new Response(
         JSON.stringify(newSet),
         { status: 201, headers: { "Content-Type": "application/json" } } // 201 Created for success
@@ -100,14 +120,14 @@ export async function POST(context: APIContext): Promise<Response> {
     }
 
     // Fallback for unexpected case where newSet is null without an error
-    console.error("Flashcard set creation resulted in null data without an error.");
+    console.error("[POST /api/flashcard-sets] Flashcard set creation resulted in null data without an error.");
     return new Response(JSON.stringify({ message: "Internal Server Error: An unexpected issue occurred." }), {
       status: 500,
       headers: { "Content-Type": "application/json" },
     });
   } catch (e) {
     // Catch any other unexpected errors during service call or response handling
-    console.error("Unexpected error in POST /api/flashcard-sets:", e);
+    console.error("[POST /api/flashcard-sets] Unexpected error:", e);
     return new Response(JSON.stringify({ message: "Internal Server Error: An unexpected error occurred." }), {
       status: 500,
       headers: { "Content-Type": "application/json" },
