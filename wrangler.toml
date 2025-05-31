@@ -1,0 +1,19 @@
+name = "10x-cards"
+compatibility_date = "2024-05-31"
+
+# KV namespace for Astro sessions
+# You need to create a KV namespace in Cloudflare dashboard and replace the IDs below
+[[kv_namespaces]]
+binding = "SESSION"
+id = "your-kv-namespace-id"
+preview_id = "your-preview-kv-namespace-id"
+
+[env.production]
+kv_namespaces = [
+  { binding = "SESSION", id = "your-kv-namespace-id", preview_id = "your-preview-kv-namespace-id" }
+]
+
+[env.preview]
+kv_namespaces = [
+  { binding = "SESSION", id = "your-preview-kv-namespace-id" }
+] 

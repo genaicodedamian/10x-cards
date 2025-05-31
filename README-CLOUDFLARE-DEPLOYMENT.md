@@ -1,102 +1,166 @@
 # Cloudflare Pages Deployment Setup
 
-Ten dokument opisuje konfigurację automatycznego wdrażania aplikacji na Cloudflare Pages za pomocą GitHub Actions.
+This guide explains how to set up CI/CD deployment to Cloudflare Pages for this Astro project.
 
-## Wymagane Sekrety GitHub
+## Prerequisites
 
-Aby workflow działał poprawnie, musisz skonfigurować następujące sekrety w ustawieniach repozytorium GitHub (Settings > Secrets and variables > Actions):
+1. **Cloudflare Account**: You need a Cloudflare account with access to Pages
+2. **GitHub Repository**: Your code should be in a GitHub repository
+3. **Node.js**: Project uses Node.js (version specified in `.nvmrc`)
 
-### Cloudflare Sekrety
+## Required Secrets
 
-1. **CLOUDFLARE_API_TOKEN**
-   - Opis: Token API Cloudflare z uprawnieniami "Cloudflare Pages — Edit"
-   - Jak uzyskać:
-     1. Zaloguj się do panelu Cloudflare
-     2. Przejdź do My Profile > API Tokens
-     3. Kliknij "Create Token"
-     4. Wybierz "Custom token"
-     5. Ustaw uprawnienia: Account - Cloudflare Pages:Edit
-     6. Skopiuj wygenerowany token
+Configure these secrets in your GitHub repository settings under `Settings > Secrets and variables > Actions`:
 
-2. **CLOUDFLARE_ACCOUNT_ID**
-   - Opis: ID konta Cloudflare
-   - Jak uzyskać:
-     1. Zaloguj się do panelu Cloudflare
-     2. Przejdź do dowolnej domeny lub do sekcji Pages
-     3. ID konta znajdziesz w prawym panelu w sekcji "API"
-     4. Lub z URL: `https://dash.cloudflare.com/<ACCOUNT_ID>/pages`
+### Cloudflare Secrets
+- `CLOUDFLARE_API_TOKEN`: Your Cloudflare API token with Pages permissions
+- `CLOUDFLARE_ACCOUNT_ID`: Your Cloudflare account ID
+- `CLOUDFLARE_PROJECT_NAME`: Your Cloudflare Pages project name
 
-3. **CLOUDFLARE_PROJECT_NAME**
-   - Opis: Nazwa projektu Cloudflare Pages
-   - Wartość: Nazwa projektu utworzonego w Cloudflare Pages (np. "10xcards")
+### Application Secrets
+- `SUPABASE_URL`: Your Supabase project URL
+- `SUPABASE_KEY`: Your Supabase anon key
+- `PUBLIC_SUPABASE_URL`: Your Supabase project URL (public)
+- `PUBLIC_SUPABASE_ANON_KEY`: Your Supabase anon key (public)
+- `OPENROUTER_API_KEY`: Your OpenRouter API key for AI features
+- `SUPABASE_SERVICE_ROLE_KEY`: Your Supabase service role key
 
-### Supabase Sekrety
+### Test Secrets (if running E2E tests)
+- `E2E_USERNAME_ID`: Test user ID
+- `E2E_USERNAME`: Test username
+- `E2E_PASSWORD`: Test password
 
-4. **SUPABASE_URL** - URL instancji Supabase
-5. **SUPABASE_KEY** - Klucz Supabase
-6. **PUBLIC_SUPABASE_URL** - Publiczny URL Supabase
-7. **PUBLIC_SUPABASE_ANON_KEY** - Publiczny klucz anonimowy Supabase
-8. **SUPABASE_SERVICE_ROLE_KEY** - Klucz roli serwisowej Supabase
+## Cloudflare KV Setup for Sessions
 
-### Inne Sekrety
+This project uses Astro sessions with Cloudflare KV storage. You need to create a KV namespace:
 
-9. **OPENROUTER_API_KEY** - Klucz API OpenRouter
-10. **E2E_USERNAME_ID** - ID użytkownika do testów E2E
-11. **E2E_USERNAME** - Nazwa użytkownika do testów E2E
-12. **E2E_PASSWORD** - Hasło do testów E2E
+### 1. Create KV Namespace
 
-## Workflow
+```bash
+# Install Wrangler CLI if you haven't already
+npm install -g wrangler
 
-Workflow `.github/workflows/master.yml` automatycznie:
+# Login to Cloudflare
+wrangler login
 
-1. **Uruchamia testy jednostkowe** - sprawdza czy kod jest poprawny
-2. **Buduje aplikację** - tworzy wersję produkcyjną
-3. **Wdraża na Cloudflare Pages** - publikuje aplikację
-
-### Triggery
-
-Workflow uruchamia się automatycznie gdy:
-- Kod jest pushowany do brancha `master`
-- Ręcznie przez GitHub Actions UI (workflow_dispatch)
-
-### Struktura
-
-```yaml
-jobs:
-  test:           # Uruchamia testy jednostkowe
-  build-and-deploy: # Buduje i wdraża aplikację (tylko po udanych testach)
+# Create KV namespace for sessions
+wrangler kv namespace create "SESSION"
 ```
 
-## Konfiguracja Cloudflare Pages
+This will output something like:
+```
+🌀 Creating namespace with title "SESSION"
+✨ Success!
+Add the following to your configuration file in your kv_namespaces array:
+{ binding = "SESSION", id = "your-kv-namespace-id" }
+```
 
-Upewnij się, że projekt Cloudflare Pages jest skonfigurowany z następującymi ustawieniami:
+### 2. Create Preview KV Namespace
 
-- **Framework preset**: Astro
-- **Build command**: `npm run build`
-- **Build output directory**: `dist`
-- **Node.js version**: 22.14.0 (zgodnie z `.nvmrc`)
+```bash
+# Create preview namespace
+wrangler kv namespace create "SESSION" --preview
+```
 
-## Zmienne Środowiskowe w Cloudflare
+This will output:
+```
+🌀 Creating namespace with title "SESSION"
+✨ Success!
+Add the following to your configuration file in your kv_namespaces array:
+{ binding = "SESSION", preview_id = "your-preview-kv-namespace-id" }
+```
 
-Wszystkie zmienne środowiskowe z `.env.example` muszą być również skonfigurowane w panelu Cloudflare Pages:
+### 3. Update wrangler.toml
 
-1. Przejdź do projektu w Cloudflare Pages
-2. Settings > Environment variables
-3. Dodaj wszystkie zmienne z odpowiednimi wartościami
-4. Zaznacz "Encrypt" dla wrażliwych danych
+Update the `wrangler.toml` file with your actual KV namespace IDs:
+
+```toml
+name = "10x-cards"
+compatibility_date = "2024-05-31"
+
+# KV namespace for Astro sessions
+[[kv_namespaces]]
+binding = "SESSION"
+id = "your-actual-kv-namespace-id"
+preview_id = "your-actual-preview-kv-namespace-id"
+```
+
+### 4. Configure Cloudflare Pages Project
+
+In your Cloudflare dashboard:
+
+1. Go to **Workers & Pages**
+2. Select your Pages project
+3. Go to **Settings** > **Functions**
+4. Add the KV namespace binding:
+   - **Variable name**: `SESSION`
+   - **KV namespace**: Select the namespace you created
+
+## Environment Configuration
+
+### GitHub Environment
+
+1. Go to your repository settings
+2. Navigate to **Environments**
+3. Create an environment named `production`
+4. Add all the required secrets listed above
+
+### Cloudflare Pages Environment Variables
+
+In your Cloudflare Pages project settings, add these environment variables:
+
+- `SUPABASE_URL`
+- `SUPABASE_KEY`
+- `PUBLIC_SUPABASE_URL`
+- `PUBLIC_SUPABASE_ANON_KEY`
+- `OPENROUTER_API_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY`
+
+## Deployment Process
+
+The deployment happens automatically when you push to the `master` branch:
+
+1. **Tests Run**: Unit and component tests are executed
+2. **Build**: Project is built with all environment variables
+3. **Deploy**: Built files are deployed to Cloudflare Pages using Wrangler
+
+## Manual Deployment
+
+You can also trigger deployment manually:
+
+1. Go to your GitHub repository
+2. Navigate to **Actions**
+3. Select the "Deploy to Cloudflare Pages" workflow
+4. Click **Run workflow**
 
 ## Troubleshooting
 
-### Błąd: "No account id found"
-- Sprawdź czy `CLOUDFLARE_ACCOUNT_ID` jest poprawnie ustawiony w sekretach GitHub
+### Build Fails with "missing app token"
 
-### Błąd: "Project not found"
-- Sprawdź czy `CLOUDFLARE_PROJECT_NAME` odpowiada nazwie projektu w Cloudflare Pages
+If you see errors about missing app tokens, ensure all environment variables are properly set in both GitHub secrets and Cloudflare Pages environment variables.
 
-### Błąd: "Unauthorized"
-- Sprawdź czy `CLOUDFLARE_API_TOKEN` ma odpowiednie uprawnienia
-- Token musi mieć uprawnienia "Cloudflare Pages — Edit"
+### KV Binding Errors
 
-### Build fails
-- Sprawdź czy wszystkie zmienne środowiskowe są ustawione
-- Sprawdź logi budowania w GitHub Actions 
+If you see errors about SESSION binding:
+
+1. Verify KV namespace is created
+2. Check `wrangler.toml` has correct IDs
+3. Ensure binding is configured in Cloudflare Pages project settings
+
+### React 18 Compatibility
+
+This project uses React 18 for Cloudflare Workers compatibility. If you encounter React-related errors, ensure you're not accidentally upgrading to React 19.
+
+## Local Development
+
+For local development with Cloudflare bindings:
+
+```bash
+# Install dependencies
+npm install
+
+# Start development server with Cloudflare runtime
+npm run dev
+```
+
+The project is configured to use Cloudflare's platform proxy for local development, giving you access to KV and other bindings locally. 
