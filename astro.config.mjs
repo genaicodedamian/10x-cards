@@ -15,5 +15,4 @@ export default defineConfig({
     plugins: [tailwindcss()],
   },
   adapter: cloudflare(),
-  experimental: { session: true },
 });
