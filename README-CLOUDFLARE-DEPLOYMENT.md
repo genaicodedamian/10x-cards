@@ -18,138 +18,89 @@ Configure these secrets in your GitHub repository settings under `Settings > Sec
 - `CLOUDFLARE_PROJECT_NAME`: Your Cloudflare Pages project name
 
 ### Application Secrets
-- `SUPABASE_URL`: Your Supabase project URL
-- `SUPABASE_KEY`: Your Supabase anon key
-- `PUBLIC_SUPABASE_URL`: Your Supabase project URL (public)
-- `PUBLIC_SUPABASE_ANON_KEY`: Your Supabase anon key (public)
+- `SUPABASE_URL`: Your Supabase project URL (server-side)
+- `SUPABASE_KEY`: Your Supabase anon key (server-side)
+- `PUBLIC_SUPABASE_URL`: Your Supabase project URL (client-side)
+- `PUBLIC_SUPABASE_ANON_KEY`: Your Supabase anon key (client-side)
+- `SUPABASE_SERVICE_ROLE_KEY`: Your Supabase service role key (admin operations)
 - `OPENROUTER_API_KEY`: Your OpenRouter API key for AI features
-- `SUPABASE_SERVICE_ROLE_KEY`: Your Supabase service role key
 
 ### Test Secrets (if running E2E tests)
 - `E2E_USERNAME_ID`: Test user ID
 - `E2E_USERNAME`: Test username
 - `E2E_PASSWORD`: Test password
 
-## Cloudflare KV Setup for Sessions
+## Cloudflare Pages Environment Variables
 
-This project uses Astro sessions with Cloudflare KV storage. You need to create a KV namespace:
+**IMPORTANT**: You need to add these environment variables in your Cloudflare Pages dashboard:
 
-### 1. Create KV Namespace
+### Go to: Cloudflare Dashboard > Pages > Your Project > Settings > Environment Variables
 
-```bash
-# Install Wrangler CLI if you haven't already
-npm install -g wrangler
+Add these variables for **Production** environment:
 
-# Login to Cloudflare
-wrangler login
-
-# Create KV namespace for sessions
-wrangler kv namespace create "SESSION"
+```
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_KEY=your-anon-key
+PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+OPENROUTER_API_KEY=your-openrouter-key
 ```
 
-This will output something like:
-```
-🌀 Creating namespace with title "SESSION"
-✨ Success!
-Add the following to your configuration file in your kv_namespaces array:
-{ binding = "SESSION", id = "your-kv-namespace-id" }
-```
+### KV Namespace Configuration
 
-### 2. Create Preview KV Namespace
+Your project uses Cloudflare KV for Astro sessions. Make sure you have:
 
-```bash
-# Create preview namespace
-wrangler kv namespace create "SESSION" --preview
-```
+1. **Created KV namespaces** in Cloudflare dashboard:
+   - `10x-cards-sessions` (production)
+   - `10x-cards-preview` (preview)
 
-This will output:
-```
-🌀 Creating namespace with title "SESSION"
-✨ Success!
-Add the following to your configuration file in your kv_namespaces array:
-{ binding = "SESSION", preview_id = "your-preview-kv-namespace-id" }
-```
-
-### 3. Update wrangler.toml
-
-Update the `wrangler.toml` file with your actual KV namespace IDs:
-
-```toml
-name = "10x-cards"
-compatibility_date = "2024-05-31"
-
-# KV namespace for Astro sessions
-[[kv_namespaces]]
-binding = "SESSION"
-id = "your-actual-kv-namespace-id"
-preview_id = "your-actual-preview-kv-namespace-id"
-```
-
-### 4. Configure Cloudflare Pages Project
-
-In your Cloudflare dashboard:
-
-1. Go to **Workers & Pages**
-2. Select your Pages project
-3. Go to **Settings** > **Functions**
-4. Add the KV namespace binding:
-   - **Variable name**: `SESSION`
-   - **KV namespace**: Select the namespace you created
-
-## Environment Configuration
-
-### GitHub Environment
-
-1. Go to your repository settings
-2. Navigate to **Environments**
-3. Create an environment named `production`
-4. Add all the required secrets listed above
-
-### Cloudflare Pages Environment Variables
-
-In your Cloudflare Pages project settings, add these environment variables:
-
-- `SUPABASE_URL`
-- `SUPABASE_KEY`
-- `PUBLIC_SUPABASE_URL`
-- `PUBLIC_SUPABASE_ANON_KEY`
-- `OPENROUTER_API_KEY`
-- `SUPABASE_SERVICE_ROLE_KEY`
+2. **Updated wrangler.toml** with correct namespace IDs (already done)
 
 ## Deployment Process
 
-The deployment happens automatically when you push to the `master` branch:
-
-1. **Tests Run**: Unit and component tests are executed
-2. **Build**: Project is built with all environment variables
-3. **Deploy**: Built files are deployed to Cloudflare Pages using Wrangler
-
-## Manual Deployment
-
-You can also trigger deployment manually:
-
-1. Go to your GitHub repository
-2. Navigate to **Actions**
-3. Select the "Deploy to Cloudflare Pages" workflow
-4. Click **Run workflow**
+1. **Push to master branch** - triggers automatic deployment via GitHub Actions
+2. **Monitor build** in GitHub Actions tab
+3. **Check deployment** in Cloudflare Pages dashboard
+4. **Verify environment variables** are set correctly
 
 ## Troubleshooting
 
-### Build Fails with "missing app token"
+### Common Issues:
 
-If you see errors about missing app tokens, ensure all environment variables are properly set in both GitHub secrets and Cloudflare Pages environment variables.
+1. **500 Internal Server Error**:
+   - Check environment variables in Cloudflare Pages
+   - Verify Supabase credentials are correct
+   - Check build logs for missing dependencies
 
-### KV Binding Errors
+2. **Missing Environment Variables**:
+   - Ensure all required variables are set in Cloudflare Pages
+   - Variables must be set for the correct environment (Production/Preview)
 
-If you see errors about SESSION binding:
+3. **KV Binding Errors**:
+   - Verify KV namespaces exist in Cloudflare
+   - Check wrangler.toml has correct namespace IDs
 
-1. Verify KV namespace is created
-2. Check `wrangler.toml` has correct IDs
-3. Ensure binding is configured in Cloudflare Pages project settings
+4. **Build Failures**:
+   - Check Node.js version compatibility
+   - Verify all dependencies are installed
+   - Review build logs for specific errors
 
-### React 18 Compatibility
+## Testing
 
-This project uses React 18 for Cloudflare Workers compatibility. If you encounter React-related errors, ensure you're not accidentally upgrading to React 19.
+After deployment:
+1. Visit your Cloudflare Pages URL
+2. Test authentication flow
+3. Verify all features work correctly
+4. Check browser console for any client-side errors
+
+## Support
+
+If you encounter issues:
+1. Check Cloudflare Pages build logs
+2. Review GitHub Actions workflow logs
+3. Verify environment variable configuration
+4. Test locally with same environment variables
 
 ## Local Development
 

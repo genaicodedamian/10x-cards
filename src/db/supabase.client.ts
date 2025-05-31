@@ -22,7 +22,20 @@ function parseCookieHeader(cookieHeader: string | null | undefined): { name: str
 }
 
 export const createSupabaseServerInstance = (context: { headers: Headers; cookies: AstroCookies }) => {
-  const supabase = createServerClient<Database>(import.meta.env.SUPABASE_URL, import.meta.env.SUPABASE_KEY, {
+  // Używamy PUBLIC_ zmiennych które są dostępne w Cloudflare
+  const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL || import.meta.env.SUPABASE_URL;
+  const supabaseKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY || import.meta.env.SUPABASE_KEY;
+  
+  if (!supabaseUrl || !supabaseKey) {
+    console.error('Missing Supabase environment variables:', {
+      url: !!supabaseUrl,
+      key: !!supabaseKey,
+      available: Object.keys(import.meta.env).filter(key => key.includes('SUPABASE'))
+    });
+    throw new Error('Missing required Supabase environment variables');
+  }
+
+  const supabase = createServerClient<Database>(supabaseUrl, supabaseKey, {
     cookieOptions,
     cookies: {
       getAll() {
