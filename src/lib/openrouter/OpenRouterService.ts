@@ -21,17 +21,29 @@ export class OpenRouterService {
   private readonly requestTimeoutMs: number;
 
   constructor(config?: Partial<OpenRouterServiceConfig>) {
-    // In Astro + Vite projects, import.meta.env is the recommended way to access environment variables
-    // on the server-side from .env files. Astro makes all .env variables (not just PUBLIC_ prefixed)
-    // available via import.meta.env in server code.
-    const apiKeyFromEnv = import.meta.env.OPENROUTER_API_KEY;
+    // Handle both local development (import.meta.env) and Cloudflare Workers (process.env)
+    let apiKeyFromEnv: string | undefined;
+    
+    try {
+      // Try import.meta.env first (local development)
+      apiKeyFromEnv = import.meta.env.OPENROUTER_API_KEY;
+    } catch {
+      // Fallback to process.env (Cloudflare Workers)
+      apiKeyFromEnv = process.env.OPENROUTER_API_KEY;
+    }
+    
+    // If still undefined, try process.env as backup
+    if (!apiKeyFromEnv) {
+      apiKeyFromEnv = process.env.OPENROUTER_API_KEY;
+    }
+    
     this.apiKey = config?.apiKey || apiKeyFromEnv || ""; // Initialize with empty string if undefined
     if (!this.apiKey) {
       console.error(
-        "OpenRouter API Key is not configured. Please set OPENROUTER_API_KEY in your .env file in the project root and restart the development server."
+        "OpenRouter API Key is not configured. Please set OPENROUTER_API_KEY environment variable."
       );
-      // Log the value retrieved to help debug (it might be an empty string if the key exists but has no value)
-      console.error(`Value attempted from import.meta.env.OPENROUTER_API_KEY: '${apiKeyFromEnv}'`);
+      // Log the value retrieved to help debug
+      console.error(`Final apiKeyFromEnv value: '${apiKeyFromEnv}'`);
       throw new Error("OpenRouter API Key is missing.");
     }
 
