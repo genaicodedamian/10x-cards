@@ -20,6 +20,7 @@ const SourceTextInput: React.FC<SourceTextInputProps> = ({
   validationMessage,
 }) => {
   const isInvalid = validationMessage !== null && sourceText.length > 0;
+  const isOverLimit = charCount > maxTextLength;
 
   return (
     <div className="grid w-full gap-1.5">
@@ -33,10 +34,16 @@ const SourceTextInput: React.FC<SourceTextInputProps> = ({
         aria-describedby="source-text-validation"
       />
       <div className="flex justify-between text-sm" id="source-text-validation">
-        <p className={isInvalid ? "text-red-500" : "text-muted-foreground"}>
-          {validationMessage ? validationMessage : `Liczba znaków: ${charCount} / ${maxTextLength}`}
-        </p>
-        {!isInvalid && sourceText.length > 0 && charCount >= minTextLength && (
+        {isOverLimit ? (
+          <p className="text-red-500">
+            Liczba znaków: {charCount} / {maxTextLength}
+          </p>
+        ) : (
+          <p className={isInvalid ? "text-red-500" : "text-muted-foreground"}>
+            {validationMessage ? validationMessage : `Liczba znaków: ${charCount} / ${maxTextLength}`}
+          </p>
+        )}
+        {!isInvalid && !isOverLimit && sourceText.length > 0 && charCount >= minTextLength && (
           <p className="text-green-600">Wygląda dobrze!</p>
         )}
       </div>

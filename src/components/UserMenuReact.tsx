@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { Button } from "@/components/ui/button"; // Restore Button import
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,6 +27,9 @@ export interface UserMenuReactProps {
 
 const UserMenuReact: React.FC<UserMenuReactProps> = ({ userEmail }) => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  
+  console.log("UserMenuReact rendered with email:", userEmail);
+  
   // Add state for loading/submitting if needed for delete operation
   // const [isDeleting, setIsDeleting] = useState(false);
 
@@ -141,27 +143,28 @@ const UserMenuReact: React.FC<UserMenuReactProps> = ({ userEmail }) => {
   return (
     <>
       <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="relative h-8 w-auto px-2 flex items-center">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              class="mr-2 h-5 w-5 text-muted-foreground"
-            >
-              <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
-              <circle cx="12" cy="7" r="4"></circle>
-            </svg>
-            <span className="text-sm font-medium">{userEmail}</span>
-          </Button>
+        <DropdownMenuTrigger 
+          className="justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50 py-2 has-[>svg]:px-3 relative h-8 w-auto px-2 flex items-center"
+          onClick={() => console.log("DropdownMenuTrigger clicked!")}
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="mr-2 h-5 w-5 text-muted-foreground"
+          >
+            <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+          <span className="text-sm font-medium">{userEmail}</span>
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-56" align="end" forceMount>
+        <DropdownMenuContent className="w-56" align="end">
           <DropdownMenuLabel className="font-normal">
             <div className="flex flex-col space-y-1">
               <p className="text-sm font-medium leading-none">Zalogowano jako</p>
