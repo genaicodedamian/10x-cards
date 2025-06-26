@@ -2,7 +2,7 @@
 
 ## Przeznaczenie
 
-Komponent `RegisterForm.tsx` odpowiada za obsługę procesu rejestracji nowego użytkownika w aplikacji. Umożliwia wprowadzenie adresu e-mail, hasła oraz potwierdzenie hasła, a następnie komunikuje się z usługą Supabase w celu utworzenia nowego konta.
+Komponent `RegisterForm.tsx` odpowiada za obsługę procesu rejestracji nowego użytkownika w aplikacji. Umożliwia wprowadzenie adresu e-mail, hasła oraz potwierdzenie hasła, a następnie komunikuje się z usługą Supabase w celu utworzenia nowego konta. Po pomyślnej rejestracji wyświetla modal informujący o konieczności potwierdzenia rejestracji przez e-mail.
 
 ## Logika Działania
 
@@ -14,7 +14,7 @@ Komponent zarządza następującymi stanami:
 -   `confirmPassword`: Przechowuje wprowadzone przez użytkownika potwierdzenie hasła.
 -   `error`: Przechowuje komunikat błędu walidacji formularza lub błędu zwróconego przez Supabase podczas rejestracji.
 -   `isLoading`: Flaga informująca, czy proces rejestracji jest w toku.
--   `showSuccessModal`: Flaga kontrolująca widoczność modala informującego o pomyślnej rejestracji.
+-   `showSuccessModal`: Flaga kontrolująca widoczność modala informującego o pomyślnej rejestracji i konieczności potwierdzenia e-maila.
 
 ### Walidacja Formularza (`validateForm`)
 
@@ -43,7 +43,7 @@ Ta funkcja jest wywoływana po kliknięciu przycisku "OK" w modalu potwierdzają
         *   Jeśli błąd zawiera informację o tym, że użytkownik już istnieje ("User already registered" lub "already registered"), ustawia odpowiedni komunikat `error`.
         *   W przeciwnym razie, ustawia `error` na komunikat błędu zwrócony przez Supabase lub ogólny komunikat.
         *   Ustawia `isLoading` na `false`.
-    *   **Sukces Rejestracji (brak `signUpError` i istnieje `data.user`)**: Ustawia `showSuccessModal` na `true`.
+    *   **Sukces Rejestracji (brak `signUpError` i istnieje `data.user`)**: Ustawia `showSuccessModal` na `true`, co powoduje wyświetlenie modala informującego o konieczności sprawdzenia skrzynki e-mail i potwierdzenia rejestracji.
     *   **Sukces, ale brak danych użytkownika**: Ustawia `error` informujący o pomyślnej rejestracji, ale problemie z weryfikacją, sugerując ręczne logowanie.
 7.  Niezależnie od wyniku, ustawia `isLoading` na `false` po zakończeniu operacji asynchronicznej.
 
@@ -55,7 +55,7 @@ Ta funkcja jest wywoływana po kliknięciu przycisku "OK" w modalu potwierdzają
 -   Przycisk "Zarejestruj się" (`Button`) jest używany do wysłania formularza. Jego stan (w tym tekst "Rejestrowanie...") zmienia się w zależności od flagi `isLoading`.
 -   Komunikaty błędów (`error`) są wyświetlane w kolorze czerwonym.
 -   Stopka (`CardFooter`) zawiera link do strony logowania (`/login`).
--   Modal (`AlertDialog` z `@/components/ui/alert-dialog`) wyświetlany jest po pomyślnej rejestracji, informując użytkownika o sukcesie i umożliwiając przejście do strony logowania.
+-   Modal (`AlertDialog` z `@/components/ui/alert-dialog`) wyświetlany jest po pomyślnej rejestracji, informując użytkownika o konieczności sprawdzenia skrzynki e-mail (na adres {email}) i kliknięcia w link potwierdzający, aby aktywować konto. Modal umożliwia przejście do strony logowania po kliknięciu "OK".
 
 ## Zależności
 

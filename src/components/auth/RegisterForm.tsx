@@ -150,8 +150,11 @@ export function RegisterForm() {
         <AlertDialog open={showSuccessModal} onOpenChange={setShowSuccessModal}>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Rejestracja Zakończona Pomyślnie!</AlertDialogTitle>
-              <AlertDialogDescription>Gratulacje! Twoje konto 10x-cards zostało utworzone!</AlertDialogDescription>
+              <AlertDialogTitle>Sprawdź swoją skrzynkę e-mail</AlertDialogTitle>
+              <AlertDialogDescription>
+                Wysłaliśmy na adres <strong>{email}</strong> wiadomość z linkiem potwierdzającym rejestrację. Kliknij w
+                link w e-mailu, aby aktywować swoje konto i móc się zalogować.
+              </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogAction onClick={handleModalOkClick}>OK</AlertDialogAction>
