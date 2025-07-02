@@ -1,0 +1,110 @@
+---
+// Selling Points Section Component
+---
+
+<section class="py-20 bg-gradient-to-br from-slate-50 to-white">
+  <div class="container mx-auto px-4">
+    <div class="text-center mb-16">
+      <h2 class="text-4xl md:text-5xl font-bold mb-6">
+        Dlaczego <span class="text-gradient">10x-cards</span>?
+      </h2>
+      <p class="text-xl text-muted-foreground max-w-2xl mx-auto">
+        Odkryj moc AI w tworzeniu fiszek i revolucjonizuj swój sposób nauki
+      </p>
+    </div>
+    
+    <div class="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+      <!-- Selling Point 1 -->
+      <div class="selling-point-card group">
+        <div class="selling-point-icon">
+          <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                  d="M13 10V3L4 14h7v7l9-11h-7z"/>
+          </svg>
+        </div>
+        <h3 class="text-2xl font-bold mb-4 group-hover:text-purple-600 transition-colors">
+          Generuj 10x szybciej
+        </h3>
+        <p class="text-muted-foreground leading-relaxed">
+          Twórz setki fiszek w minutach zamiast godzinach dzięki zaawansowanej technologii AI. 
+          Wystarczy podać materiał, a resztą zajmie się algorytm.
+        </p>
+      </div>
+      
+      <!-- Selling Point 2 -->
+      <div class="selling-point-card group">
+        <div class="selling-point-icon">
+          <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+        </div>
+        <h3 class="text-2xl font-bold mb-4 group-hover:text-purple-600 transition-colors">
+          Ucz się efektywniej
+        </h3>
+        <p class="text-muted-foreground leading-relaxed">
+          Algorytmy spaced repetition i active recall zapewniają optymalny harmonogram powtórek. 
+          Zapamiętuj więcej w krótszym czasie.
+        </p>
+      </div>
+      
+      <!-- Selling Point 3 -->
+      <div class="selling-point-card group">
+        <div class="selling-point-icon">
+          <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                  d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"/>
+          </svg>
+        </div>
+        <h3 class="text-2xl font-bold mb-4 group-hover:text-purple-600 transition-colors">
+          Personalizacja AI
+        </h3>
+        <p class="text-muted-foreground leading-relaxed">
+          Dostosowane treści do Twojego stylu uczenia, poziomu wiedzy i preferencji. 
+          AI uczy się razem z Tobą i optymalizuje proces nauki.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .text-gradient {
+    background-image: linear-gradient(to right, #7928ca, #ff0080);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  
+  .selling-point-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 1rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    transition: all 0.3s ease;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+  }
+  
+  .selling-point-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    border-color: rgba(121, 40, 202, 0.2);
+  }
+  
+  .selling-point-icon {
+    width: 4rem;
+    height: 4rem;
+    background: linear-gradient(135deg, #7928ca, #ff0080);
+    border-radius: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+    color: white;
+    transition: transform 0.3s ease;
+  }
+  
+  .selling-point-card:hover .selling-point-icon {
+    transform: scale(1.1);
+  }
+</style> 

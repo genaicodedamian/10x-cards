@@ -1,0 +1,294 @@
+---
+// Educational Section with Tabs
+---
+
+<section class="py-20 bg-gradient-to-br from-slate-900 to-slate-800 text-white">
+  <div class="container mx-auto px-4">
+    <div class="text-center mb-16">
+      <h2 class="text-4xl md:text-5xl font-bold mb-6">
+        Poznaj moc <span class="text-gradient">fiszek</span>
+      </h2>
+      <p class="text-xl text-slate-300 max-w-2xl mx-auto">
+        Naukowe podstawy skutecznej nauki i dlaczego fiszki są tak efektywne
+      </p>
+    </div>
+    
+    <!-- Tab Navigation -->
+    <div class="flex justify-center mb-12">
+      <div class="bg-slate-800/50 rounded-lg p-1 backdrop-blur-sm border border-slate-700">
+        <button 
+          class="tab-button active" 
+          data-tab="flashcards"
+          onclick="switchTab(event, 'flashcards')"
+        >
+          Czym są fiszki?
+        </button>
+        <button 
+          class="tab-button" 
+          data-tab="science"
+          onclick="switchTab(event, 'science')"
+        >
+          Dlaczego działają?
+        </button>
+      </div>
+    </div>
+    
+    <!-- Tab Content -->
+    <div class="max-w-4xl mx-auto">
+      <!-- Flashcards Tab -->
+      <div id="flashcards-content" class="tab-content active">
+        <div class="grid md:grid-cols-2 gap-12 items-center">
+          <div class="space-y-6">
+            <h3 class="text-3xl font-bold mb-6">Fiszki to przyszłość nauki</h3>
+            <div class="space-y-4">
+              <div class="feature-item">
+                <div class="feature-icon">✨</div>
+                <div>
+                  <h4 class="font-semibold text-lg">Active Recall</h4>
+                  <p class="text-slate-300">Aktywne przypominanie sobie informacji wzmacnia połączenia neuronowe</p>
+                </div>
+              </div>
+              <div class="feature-item">
+                <div class="feature-icon">🔄</div>
+                <div>
+                  <h4 class="font-semibold text-lg">Spaced Repetition</h4>
+                  <p class="text-slate-300">Powtarzanie w optymalnych odstępach czasu dla długotrwałego zapamiętywania</p>
+                </div>
+              </div>
+              <div class="feature-item">
+                <div class="feature-icon">🎯</div>
+                <div>
+                  <h4 class="font-semibold text-lg">Mikronauka</h4>
+                  <p class="text-slate-300">Małe porcje informacji są łatwiejsze do przetworzenia i zapamiętania</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="relative">
+            <div class="flashcard-demo">
+              <div class="flashcard front">
+                <div class="flashcard-content">
+                  <h4 class="text-lg font-semibold mb-2">Pytanie</h4>
+                  <p>Jaka jest stolica Francji?</p>
+                </div>
+              </div>
+              <div class="flashcard back">
+                <div class="flashcard-content">
+                  <h4 class="text-lg font-semibold mb-2">Odpowiedź</h4>
+                  <p>Paryż</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Science Tab -->
+      <div id="science-content" class="tab-content">
+        <div class="grid md:grid-cols-2 gap-12 items-center">
+          <div class="space-y-6">
+            <h3 class="text-3xl font-bold mb-6">Naukowe podstawy</h3>
+            <div class="space-y-6">
+              <div class="stat-card">
+                <div class="stat-number">87%</div>
+                <div class="stat-description">wzrost retencji pamięciowej dzięki spaced repetition</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-number">3x</div>
+                <div class="stat-description">szybsze zapamiętywanie w porównaniu do tradycyjnych metod</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-number">95%</div>
+                <div class="stat-description">studentów preferuje fiszki nad inne metody nauki</div>
+              </div>
+            </div>
+          </div>
+          <div class="space-y-6">
+            <div class="research-card">
+              <h4 class="font-semibold text-xl mb-3">Badania naukowe</h4>
+              <p class="text-slate-300 mb-4">
+                Liczne badania potwierdzają skuteczność metody fiszek w procesie uczenia się i zapamiętywania.
+              </p>
+              <ul class="space-y-2 text-slate-300">
+                <li>• Ebbinghaus - krzywa zapominania</li>
+                <li>• Piotr Wozniak - algorytm SM-2</li>
+                <li>• Hermann Ebbinghaus - efekt testowania</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .text-gradient {
+    background-image: linear-gradient(to right, #7928ca, #ff0080);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  
+  .tab-button {
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    color: #94a3b8;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+  }
+  
+  .tab-button.active {
+    background: linear-gradient(135deg, #7928ca, #ff0080);
+    color: white;
+  }
+  
+  .tab-button:not(.active):hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+  }
+  
+  .tab-content {
+    display: none;
+    animation: fadeIn 0.3s ease;
+  }
+  
+  .tab-content.active {
+    display: block;
+  }
+  
+  .feature-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .feature-icon {
+    background: linear-gradient(135deg, #7928ca, #ff0080);
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+  }
+  
+  .flashcard-demo {
+    position: relative;
+    width: 300px;
+    height: 200px;
+    margin: 0 auto;
+    perspective: 1000px;
+  }
+  
+  .flashcard {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 1rem;
+    transition: transform 0.6s;
+    transform-style: preserve-3d;
+    cursor: pointer;
+  }
+  
+  .flashcard.front {
+    background: linear-gradient(135deg, #1e293b, #334155);
+    border: 1px solid #475569;
+  }
+  
+  .flashcard.back {
+    background: linear-gradient(135deg, #7928ca, #ff0080);
+    transform: rotateY(180deg);
+    opacity: 0;
+  }
+  
+  .flashcard-content {
+    padding: 2rem;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+  }
+  
+  .stat-card {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 1.5rem;
+    border-radius: 0.75rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  .stat-number {
+    font-size: 2.5rem;
+    font-weight: bold;
+    background: linear-gradient(135deg, #7928ca, #ff0080);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  
+  .stat-description {
+    color: #94a3b8;
+    margin-top: 0.5rem;
+  }
+  
+  .research-card {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 2rem;
+    border-radius: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
+
+<script is:inline>
+  function switchTab(event, tabName) {
+    // Remove active class from all tabs and content
+    document.querySelectorAll('.tab-button').forEach(tab => tab.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+    
+    // Add active class to clicked tab and corresponding content
+    if (event.target) {
+      event.target.classList.add('active');
+    }
+    const content = document.getElementById(tabName + '-content');
+    if (content) {
+      content.classList.add('active');
+    }
+  }
+  
+  // Flashcard flip animation on click
+  document.addEventListener('DOMContentLoaded', function() {
+    const flashcards = document.querySelectorAll('.flashcard');
+    flashcards.forEach(card => {
+      card.addEventListener('click', function() {
+        const front = document.querySelector('.flashcard.front');
+        const back = document.querySelector('.flashcard.back');
+        
+        if (front && back) {
+          const frontEl = front;
+          const backEl = back;
+          
+          if (frontEl.style.transform === 'rotateY(-180deg)') {
+            frontEl.style.transform = 'rotateY(0deg)';
+            backEl.style.opacity = '0';
+            setTimeout(() => backEl.style.transform = 'rotateY(180deg)', 300);
+          } else {
+            frontEl.style.transform = 'rotateY(-180deg)';
+            backEl.style.transform = 'rotateY(0deg)';
+            setTimeout(() => backEl.style.opacity = '1', 300);
+          }
+        }
+      });
+    });
+  });
+</script> 

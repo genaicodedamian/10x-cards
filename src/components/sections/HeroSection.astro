@@ -1,0 +1,118 @@
+---
+// Hero Section Component
+---
+
+<section class="relative h-screen w-full overflow-hidden">
+  <!-- Video Background -->
+  <video
+    autoplay
+    muted
+    loop
+    playsinline
+    class="absolute inset-0 h-full w-full object-cover"
+  >
+    <source src="/assets/3251809-uhd_3840_2160_25fps.mp4" type="video/mp4" />
+  </video>
+  
+  <!-- Overlay with blur and darkening -->
+  <div class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
+  
+  <!-- Content -->
+  <div class="relative z-10 flex h-full items-center justify-center">
+    <div class="container mx-auto px-4 text-center">
+      <div class="max-w-4xl mx-auto space-y-8 animate-fade-in">
+        <h1 class="text-5xl md:text-7xl lg:text-8xl font-bold leading-tight text-white hero-text">
+          Witaj w <span class="text-gradient">10x-cards</span>!
+        </h1>
+        <p class="text-xl md:text-2xl text-white/90 max-w-2xl mx-auto leading-relaxed">
+          Twórz fiszki 10x szybciej i ucz się efektywniej.
+        </p>
+        <div class="flex flex-col sm:flex-row gap-6 justify-center pt-8">
+          <a href="/login" class="hero-button-hover">
+            <button class="hero-button hero-button-primary">
+              Zaloguj się
+            </button>
+          </a>
+          <a href="/register" class="hero-button-hover">
+            <button class="hero-button hero-button-outline">
+              Zarejestruj się
+            </button>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Scroll Indicator -->
+  <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
+    <div class="w-6 h-10 border-2 border-white/50 rounded-full flex justify-center">
+      <div class="w-1 h-3 bg-white/70 rounded-full mt-2 animate-pulse"></div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .text-gradient {
+    background-image: linear-gradient(to right, #7928ca, #ff0080);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  
+  .animate-fade-in {
+    animation: fadeInUp 1s ease-out;
+  }
+  
+  .hero-button-hover {
+    display: inline-block;
+    transition: transform 0.2s ease;
+  }
+  
+  .hero-button-hover:hover {
+    transform: translateY(-2px);
+  }
+  
+  .hero-button {
+    padding: 1rem 2rem;
+    font-size: 1.125rem;
+    font-weight: 500;
+    border-radius: 0.5rem;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    min-width: 160px;
+  }
+  
+  .hero-button-primary {
+    background: linear-gradient(135deg, #7928ca, #ff0080);
+    color: white;
+    box-shadow: 0 4px 15px rgba(121, 40, 202, 0.4);
+  }
+  
+  .hero-button-primary:hover {
+    box-shadow: 0 8px 25px rgba(121, 40, 202, 0.6);
+    transform: translateY(-2px);
+  }
+  
+  .hero-button-outline {
+    background: transparent;
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+  }
+  
+  .hero-button-outline:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.6);
+  }
+  
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+</style> 

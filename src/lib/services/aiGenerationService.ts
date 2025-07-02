@@ -84,7 +84,7 @@ ${text}`,
   try {
     const response = await openRouterService.getChatCompletion({
       messages,
-      model: "qwen/qwen-2.5-72b-instruct:free", // Or choose a preferred model
+      model: "google/gemini-2.5-flash-lite-preview-06-17", // Or choose a preferred model
       response_format: { type: "json_schema", json_schema: FLASHCARD_SUGGESTION_SCHEMA },
       temperature: 0.5, // Adjust for creativity vs. precision
       max_tokens: 1500, // Adjust based on expected output size

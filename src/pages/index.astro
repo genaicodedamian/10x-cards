@@ -1,22 +1,16 @@
 ---
 import PublicLayout from "@/layouts/PublicLayout.astro";
 import { Button } from "@/components/ui/button";
+import HeroSection from "@/components/sections/HeroSection.astro";
+import SellingPointsSection from "@/components/sections/SellingPointsSection.astro";
+import EducationalSection from "@/components/sections/EducationalSection.astro";
 ---
 
 <PublicLayout title="Witaj w 10x-cards">
-  <div class="container mx-auto flex flex-col items-center justify-center min-h-[calc(100vh-10rem)] px-4">
-    <h1 class="text-4xl md:text-5xl font-bold text-center mb-8">
-      Witaj w <span class="text-gradient">10x-cards</span>!
-    </h1>
-    <p class="text-xl text-muted-foreground text-center mb-12">Twórz fiszki 10x szybciej i ucz się efektywniej.</p>
-    <div class="flex flex-col sm:flex-row gap-4">
-      <a href="/login">
-        <Button size="lg" variant="default">Zaloguj się</Button>
-      </a>
-      <a href="/register">
-        <Button size="lg" variant="outline">Zarejestruj się</Button>
-      </a>
-    </div>
+  <div class="w-full">
+    <HeroSection />
+    <SellingPointsSection />
+    <EducationalSection />
   </div>
 </PublicLayout>
 
