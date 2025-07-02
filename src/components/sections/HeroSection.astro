@@ -5,14 +5,25 @@
 <section class="relative h-[calc(100vh-3.5rem)] w-full overflow-hidden">
   <!-- Video Background -->
   <video
+    id="hero-video"
     autoplay
     muted
     loop
     playsinline
+    preload="metadata"
+    webkit-playsinline
     class="absolute inset-0 h-full w-full object-cover"
   >
     <source src="/assets/3251809-uhd_3840_2160_25fps.mp4" type="video/mp4" />
   </video>
+  
+  <!-- Fallback Image for Mobile (gdy video się nie ładuje) -->
+  <div 
+    id="fallback-bg"
+    class="absolute inset-0 h-full w-full bg-cover bg-center bg-no-repeat hidden"
+    style="background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkyMCIgaGVpZ2h0PSIxMDgwIiB2aWV3Qm94PSIwIDAgMTkyMCAxMDgwIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8ZGVmcz4KPHN0eWxlPgouY2xzLTEge2ZpbGw6IGxpbmVhci1ncmFkaWVudCgxMzVkZWcsICMyMTIxMjEsICM0MDQwNDApOyB9Cjwvc3R5bGU+CjwvZGVmcz4KPHJlY3QgY2xhc3M9ImNscy0xIiB3aWR0aD0iMTkyMCIgaGVpZ2h0PSIxMDgwIi8+CjxjaXJjbGUgY3g9IjQ4MCIgY3k9IjI3MCIgcj0iMjAiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4xKSIvPgo8Y2lyY2xlIGN4PSIxNDQwIiBjeT0iODEwIiByPSIzMCIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjA1KSIvPgo8Y2lyY2xlIGN4PSI3MjAiIGN5PSIxNDAiIHI9IjE1IiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMDgpIi8+CjxjaXJjbGUgY3g9IjEyMDAiIGN5PSI0MDAiIHI9IjI1IiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMDYpIi8+Cjwvc3ZnPgo=')"
+  >
+  </div>
   
   <!-- Overlay with blur and darkening -->
   <div class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
@@ -115,4 +126,51 @@
       transform: translateY(0);
     }
   }
-</style> 
+</style>
+
+<script is:inline>
+  document.addEventListener('DOMContentLoaded', function() {
+    const video = document.getElementById('hero-video');
+    const fallback = document.getElementById('fallback-bg');
+    
+    if (video && fallback) {
+      // Force play na mobile
+      const playVideo = () => {
+        video.play().catch(e => {
+          console.log('Video autoplay failed, using fallback:', e);
+          // Jeśli video nie może się odtworzyć, pokaż fallback
+          video.style.display = 'none';
+          fallback.classList.remove('hidden');
+        });
+      };
+      
+      // Sprawdź czy video może się załadować
+      video.addEventListener('canplay', playVideo);
+      video.addEventListener('loadeddata', playVideo);
+      
+      // Fallback po timeout
+      setTimeout(() => {
+        if (video.paused) {
+          console.log('Video not playing after timeout, showing fallback');
+          video.style.display = 'none';
+          fallback.classList.remove('hidden');
+        }
+      }, 3000);
+      
+      // Próbuj odtworzyć po interakcji użytkownika (na iOS)
+      const playOnInteraction = () => {
+        if (video.paused) {
+          video.play().catch(() => {
+            video.style.display = 'none';
+            fallback.classList.remove('hidden');
+          });
+        }
+        document.removeEventListener('touchstart', playOnInteraction);
+        document.removeEventListener('click', playOnInteraction);
+      };
+      
+      document.addEventListener('touchstart', playOnInteraction, { once: true });
+      document.addEventListener('click', playOnInteraction, { once: true });
+    }
+  });
+</script> 
