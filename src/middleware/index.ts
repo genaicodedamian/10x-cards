@@ -22,6 +22,7 @@ const AUTH_FLOW_PATHS = ["/login", "/register", "/forgot-password", "/reset-pass
 const PROTECTED_PATHS = [
   "/dashboard",
   "/generate-ai",
+  "/generate-language-flashcards",
   "/create-manual",
   "/my-flashcards",
   "/study-session", // Catches all /study-session/* routes

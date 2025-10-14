@@ -1,0 +1,11 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import LanguageFlashcardGenerator from "@/components/language-generator/LanguageFlashcardGenerator.tsx";
+---
+
+<Layout title="Generuj Fiszki do Nauki Języka">
+  <div class="container mx-auto py-8 px-4">
+    <LanguageFlashcardGenerator client:load />
+  </div>
+</Layout>
+
